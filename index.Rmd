@@ -1,10 +1,14 @@
 ---
-title: "Nina's Portfolio"
+title: "Beyoncé's Musical Career"
 author: "Nina Buter"
 date: "8-2-2021"
 output: html_document
 ---
+#Introduction
+Today, Beyoncé is one of my favorite artists. She has already had a long career and has produced a number of albums, including *Dangerously In Love*, *B-Day*, *I Am Sacha Fierce*, *4*, *Beyoncé*, *Lemonade* and *The Lion King*. One of the reasons I like Beyoncé and her music so much is because she has such a varied style in her albums and that's why I can always rely on her music. On extravagant moments I like to listen to *4*, if I want to listen to old pop classics like Halo, I put on *I Am Sacha Fierce*, and when I'm not feeling well I listen to *Lemonade* for a boost of gain self-confidence. Because I like Beyoncé's style variation between albums so much, I think it would be nice to research with SpotifyR how her music has developed in recent years and how this is reflected in the characteristics of her albums. By using SpotifyR audio features like acousticness, danceability, energy, instrumentalness, key, liveness, loudness, mode, speechiness, tempo, and valence I'm going to compare the general characteristics of her albums, but also specific songs such as *Halo* and *Drunk In Love*.
 
+
+#Data importation
 ```{r}
 library(tidyverse)
 library(spotifyr)
@@ -12,14 +16,10 @@ library(ggplot2)
 
 ```
 ```{r}
-get_artist_audio_features("Beyoncé")
+ArtistAudioFeatures <- get_artist_audio_features("Beyoncé")
 
 ```
 
-```{r}
-Lemonade <- get_playlist_audio_features("", "1JTaxwfuwmdYNdz2EgSJPz")
-
-```
 
 ```{r}
 DangerouslyInLove <- get_playlist_audio_features("", "3fMQZa4rswBIb9hs6n217m")
@@ -31,3 +31,5 @@ Lemonade <- get_playlist_audio_features("", "1JTaxwfuwmdYNdz2EgSJPz")
 TheLionKing <- get_playlist_audio_features("", "2oqUwlwt0bY3nqkpFGrtaS")
 
 ```
+
+#Data analysis
