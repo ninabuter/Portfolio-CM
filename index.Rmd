@@ -5,7 +5,7 @@ date: "8-2-2021"
 output: html_document
 ---
 #Introduction
-Today, Beyoncé is one of my favorite artists. She has already had a long career and has produced a number of albums, including *Dangerously In Love*, *B-Day*, *I Am Sacha Fierce*, *4*, *Beyoncé*, *Lemonade* and *The Lion King*. One of the reasons I like Beyoncé and her music so much is because she has such a varied style in her albums and that's why I can always rely on her music. On extravagant moments I like to listen to *4*, if I want to listen to old pop classics like Halo, I put on *I Am Sacha Fierce*, and when I'm not feeling well I listen to *Lemonade* for a boost of gain self-confidence. Because I like Beyoncé's style variation between albums so much, I think it would be nice to research with SpotifyR how her music has developed in recent years and how this is reflected in the characteristics of her albums. By using SpotifyR audio features like acousticness, danceability, energy, instrumentalness, key, liveness, loudness, mode, speechiness, tempo, and valence I'm going to compare the general characteristics of her albums, but also specific songs such as *Halo* and *Drunk In Love*.
+Today, Beyoncé is one of my favorite artists. She has already had a long career and has produced a number of albums, including *Dangerously In Love*, *B-Day*, *I Am Sacha Fierce*, *4*, *Beyoncé*, *Lemonade* and *The Lion King*. One of the reasons I like Beyoncé and her music so much is because she has such a varied style in her albums and that's why I can always rely on her music. On extravagant moments I like to listen to *4*, if I want to listen to old pop classics like Halo, I put on *I Am Sacha Fierce*, and when I'm not feeling well I listen to *Lemonade* for a boost of self-confidence. Because I like Beyoncé's style variation between albums so much, I think it would be nice to research with SpotifyR how her music has developed in recent years and how this is reflected in the characteristics of her albums. By using SpotifyR audio features like acousticness, danceability, energy, instrumentalness, key, liveness, loudness, mode, speechiness, tempo, and valence I'm going to compare the general characteristics of her albums, but also specific songs such as *Halo* and *Drunk In Love*.
 
 
 #Data importation
@@ -13,15 +13,14 @@ Today, Beyoncé is one of my favorite artists. She has already had a long career
 library(tidyverse)
 library(spotifyr)
 library(ggplot2)
+library(plotly)
 
 ```
+
+
+
 ```{r}
 ArtistAudioFeatures <- get_artist_audio_features("Beyoncé")
-
-```
-
-
-```{r}
 DangerouslyInLove <- get_playlist_audio_features("", "3fMQZa4rswBIb9hs6n217m")
 BDayDeluxeEdition <- get_playlist_audio_features("", "45P8KBiTPKwVWiFtLGUH1V")
 IAmSachaFierce <- get_playlist_audio_features("", "6DOBEbYqJhld4nYXmv2d7Q")
@@ -32,4 +31,108 @@ TheLionKing <- get_playlist_audio_features("", "2oqUwlwt0bY3nqkpFGrtaS")
 
 ```
 
-#Data analysis
+#Data analysis: 
+##categorizing
+```{r}
+Albums <-
+  bind_rows(
+    DangerouslyInLove %>% mutate(category = 'Dangerously In Love'),
+    BDayDeluxeEdition %>% mutate(category = 'B-Day Deluxe Edition'),
+    IAmSachaFierce %>% mutate(category = 'I Am Sacha Fierce'),
+    Four %>% mutate(category = '4'),
+    Beyoncé %>% mutate(category = 'Beyoncé'),
+    Lemonade %>% mutate(category = 'Lemonade'),
+    TheLionKing %>% mutate(category = 'The Lion King')
+  )
+```
+
+##Acousticness 
+In the scatterplot below, the acousticness of Beyoncé's songs is shown (maybe I'll change this to a boxplot).Overall, Beyoncé's songs have an acousticness below 0.5, which means low confidence that the track is acoustic. 
+```{r}
+Acousticness <- ggplot(Albums, aes(x = category, y = acousticness, color = acousticness, text=(paste("Track:", track.name, "<br>", "acousticness:", acousticness)))) +
+  geom_point(alpha = 0.5, size = 2) +
+  theme(axis.text.x = element_text(size = 6))
+  ggtitle('Acousticness of albums') 
+
+ggplotly(Acousticness, tooltip=c("text"))
+```
+##Color pallette
+```{r}
+green <- "#1ed760"
+yellow <- "#e7e247"
+pink <- "#ed00d9"
+blue <- "#17bebb"
+orange <- "#eba834"
+red <- "#ed0000"
+purple <- "#8e00ed"
+```
+
+
+##Speechness 
+I wanted to research speechness, a.k.a. the presence of spoken words, in Beyoncé's songs. According to Spotify, values between 0.33 and 0.66 describe tracks that both contain both music and speech, values above 0.66 describe tracks that are probably made entirely of spoken words, and tracks with values below 0.33 most likely contain music and other non-speech-like sounds. Based on the values, the differences between the speechiness scores and 0.33 are used. If the difference is above 0, the song probably consists (almost) entirely of spoken words. And the lower the values below 0, the less spoken words the songs contain. 
+Now that I've run the code, I see that Beyoncé primarily has a speechiness value below 0.66. That's why I'm thinking of changing the code so that values below 0.66 are more emphasized instead of values above 0.66.
+
+```{r}
+
+Albums2 <- Albums%>%
+  mutate(difference=speechiness-0.33)
+
+
+Speechness <- ggplot(Albums2, aes(x=reorder(track.name, difference), y=difference, fill=playlist_name, text=(paste("Track:", track.name, "<br>",
+                                      "Speechiness:", speechiness))))+
+  geom_col()+
+  scale_fill_manual(values=c(green, yellow, pink, blue, orange, red, purple))+
+  theme_minimal()+
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.ticks.y=element_blank(),
+        panel.grid.major = element_blank(),
+        legend.position="none")+
+  ylab("Speechiness Difference")+
+  facet_wrap(~ playlist_name)+
+  ggtitle("Speechiness Difference")
+
+ggplotly(Speechness, tooltip=c("text"))
+
+```
+
+##Key Data Table
+```{r}
+KeyTable <- Albums%>%
+  select(playlist_name, key)%>%
+  group_by(playlist_name, key)%>%
+  mutate(n=n())%>%
+  unique()%>%
+  group_by(key)%>%
+  mutate(total=sum(n))%>%
+  mutate(percent=round((n/total)*100))
+
+head(KeyTable, 10)
+
+```
+
+```{r}
+Toonsoort <- c('C', 'C#/Db', 'D', 'D#/Eb', 'E', 'F', 'F#/Gb', 'G', 'G#/Ab', 'A', 'A#/Bb', 'B')
+KeyTable <- KeyTable%>%
+  mutate(key2 = Toonsoort[key+1])
+  
+```
+
+
+##Key difference albums
+I created this graph because I thought it would tell a lot about the albums. However, I'm not so sure if it's useful... The only thing I make up of this information is that Beyoncé is varying a lot in the keys she uses in albums.
+```{r}
+KeyAlbums <- ggplot(KeyTable, aes(x=key2, fill=playlist_name, y = n, 
+                                text = paste("Number of Songs: ", n, "<br>",
+                                            "Percent Songs in Key: ", percent, "%")))+
+  geom_bar(width=0.5, stat = "identity")+
+  scale_x_discrete(limits = Toonsoort) +
+  scale_fill_manual(values=c(green, yellow, pink, blue, orange, red, purple))+
+  labs(x="Key", y="Percent of Songs")+
+  guides(fill=guide_legend(title="Playlist"))+
+  theme_minimal()+
+  ggtitle("Musical Key Percentage by Playlist")
+
+ggplotly(KeyAlbums, tooltip=c("text"))
+```
