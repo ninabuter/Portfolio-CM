@@ -12,11 +12,11 @@ library(tidyverse)
 library(spotifyr)
 library(ggplot2)
 library(plotly)
+library(compmus)
 
 ```
 
 ```{r, echo = FALSE}
-ArtistAudioFeatures <- get_artist_audio_features("Beyoncé")
 DangerouslyInLove <- get_playlist_audio_features("", "3fMQZa4rswBIb9hs6n217m")
 BDayDeluxeEdition <- get_playlist_audio_features("", "45P8KBiTPKwVWiFtLGUH1V")
 IAmSachaFierce <- get_playlist_audio_features("", "6DOBEbYqJhld4nYXmv2d7Q")
@@ -45,13 +45,16 @@ Albums <-
 ## Energy, valence, acousticness, and danceability  
 In the scatterplot below, the energy, valence, acousticness, and danceability of Beyoncé's songs are shown. Overall, Beyoncé's songs have an acousticness below 0.5, which means low confidence that the track is acoustic. You can also clearly see the difference between Beyoncé's albums *Dangerously In Love*, *B-Day Deluxe Edition*, and *4* in valence compared to the other albums. The former have a higher valence than the other albums. 
 ```{r, echo = FALSE}
-VaEnAcDa <- ggplot(Albums, aes(x = valence, y = energy, color = acousticness, size = danceability, text=(paste("Track:", track.name, 
-            "<br>", 
-            "acousticness:", acousticness)))) +
+VaEnAcDa <- ggplot(Albums, aes(x = valence, y = energy, color = acousticness, size = danceability, text=(paste("Track:", track.name, "<br>", 
+            "Acousticness:", acousticness, "<br>",
+            "Energy:", energy, "<br>",
+            "Valence:", valence, "<br>")))) +
   geom_point(alpha = 0.5, size = 2) +
   geom_jitter(alpha = 0.5, width = 0.1) +
   facet_wrap(~category) +
+  scale_color_gradient(low = "green", high = "black") +
   ggtitle('Beyoncé: Different Albums') +
+  xlab("Valence") + ylab("Energy") +
   theme(plot.title = element_text(family = 'Arial', 
                                   face = 'bold', 
                                   size = )) +
@@ -143,4 +146,55 @@ KeyAlbums <- ggplot(KeyTable, aes(x=key2, fill=playlist_name, y = n,
   ggtitle("Musical Key Percentage by Playlist")
 
 ggplotly(KeyAlbums, tooltip=c("text"))
+```
+
+```{r, echo = FALSE}
+Hurt <-
+  get_tidy_audio_analysis("2CvOqDpQIMw69cCzWqr5yr") %>%
+  select(segments) %>%
+  unnest(segments) %>%
+  select(start, duration, pitches)
+```
+
+```{r, echo = FALSE}
+Hurt %>%
+  mutate(pitches = map(pitches, compmus_normalise, "euclidean")) %>%
+  compmus_gather_chroma() %>% 
+  ggplot(
+    aes(
+      x = start + duration / 2,
+      width = duration,
+      y = pitch_class,
+      fill = value
+    )
+  ) +
+  geom_tile() +
+  labs(x = "Time (s)", y = NULL, fill = "Magnitude") +
+  theme_minimal() +
+  scale_fill_viridis_c()
+```
+```{r, echo = FALSE}
+DrunkInLove <-
+  get_tidy_audio_analysis("6jG2YzhxptolDzLHTGLt7S") %>%
+  select(segments) %>%
+  unnest(segments) %>%
+  select(start, duration, pitches)
+```
+
+```{r, echo = FALSE}
+DrunkInLove %>%
+  mutate(pitches = map(pitches, compmus_normalise, "euclidean")) %>%
+  compmus_gather_chroma() %>% 
+  ggplot(
+    aes(
+      x = start + duration / 2,
+      width = duration,
+      y = pitch_class,
+      fill = value
+    )
+  ) +
+  geom_tile() +
+  labs(x = "Time (s)", y = NULL, fill = "Magnitude") +
+  theme_minimal() +
+  scale_fill_viridis_c()
 ```
