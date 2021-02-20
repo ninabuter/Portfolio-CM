@@ -52,7 +52,7 @@ VaEnAcDa <- ggplot(Albums, aes(x = valence, y = energy, color = acousticness, si
   geom_point(alpha = 0.5, size = 2) +
   geom_jitter(alpha = 0.5, width = 0.1) +
   facet_wrap(~category) +
-  scale_color_gradient(low = "green", high = "black") +
+  scale_color_gradient(low = "light blue", high = "black") +
   ggtitle('Beyoncé: Different Albums') +
   xlab("Valence") + ylab("Energy") +
   theme(plot.title = element_text(family = 'Arial', 
@@ -70,7 +70,7 @@ VaEnAcDa <- ggplot(Albums, aes(x = valence, y = energy, color = acousticness, si
 ggplotly(VaEnAcDa, tooltip=c("text"))
 ```
 ## Speechiness 
-I wanted to research speechiness, a.k.a. the presence of spoken words, in Beyoncé's songs. According to Spotify, values between 0.33 and 0.66 describe tracks that both contain both music and speech, values above 0.66 describe tracks that are probably made entirely of spoken words, and tracks with values below 0.33 most likely contain music and other non-speech-like sounds. Based on the values, the differences between the speechiness scores and 0.33 are used, so the emphasis lies on rap songs vs. more instrumental songs.  If the difference is above 0, the song probably consists (almost) entirely of spoken words. And the lower the values below 0, the less spoken words the songs contain. 
+I wanted to research speechiness, a.k.a. the presence of spoken words, in Beyoncé's songs. According to Spotify, values between 0.33 and 0.66 describe tracks that both contain music and speech, values above 0.66 describe tracks that are probably made entirely of spoken words, and tracks with values below 0.33 most likely contain music and other non-speech-like sounds. Based on the values, the differences between the speechiness scores and 0.33 are used, so the emphasis lies on rap songs vs. more instrumental songs.  If the difference is above 0, the song probably consists (almost) entirely of spoken words. And the lower the values below 0, the less spoken words the songs contain. 
 Now that I've run the code, I see that Beyoncé primarily has a speechiness value below 0.66. That's why I'm thinking of changing the code so that values below 0.66 are more emphasized instead of values above 0.66.
 
 ```{r, echo = FALSE}
@@ -109,10 +109,10 @@ ggplotly(Speechness, tooltip=c("text"))
 ```
 
 ## Key
-I created this graph because I thought it would tell a lot about the albums. However, I'm not so sure if it's useful... The only thing I make up of this information is that Beyoncé is varying a lot in the keys she uses in albums.
+I created this graph because I thought it would tell a lot about the albums. The graph shows that Beyoncé key variation in her songs and albums.
 
 ### Key Data Table
-```{r, echo = FALSE}
+```{r, echo = FALSE,include= FALSE}
 KeyTable <- Albums%>%
   select(playlist_name, key)%>%
   group_by(playlist_name, key)%>%
@@ -149,7 +149,7 @@ ggplotly(KeyAlbums, tooltip=c("text"))
 ```
 
 ```{r, echo = FALSE}
-Hurt <-
+Helo <-
   get_tidy_audio_analysis("2CvOqDpQIMw69cCzWqr5yr") %>%
   select(segments) %>%
   unnest(segments) %>%
@@ -157,7 +157,7 @@ Hurt <-
 ```
 
 ```{r, echo = FALSE}
-Hurt %>%
+Helo %>%
   mutate(pitches = map(pitches, compmus_normalise, "euclidean")) %>%
   compmus_gather_chroma() %>% 
   ggplot(
