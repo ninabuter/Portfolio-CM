@@ -1,13 +1,13 @@
 ---
-title: "Beyoncé: A Variety In Music?"
+title: "Beyoncé's Discography"
 output: 
   flexdashboard::flex_dashboard:
     storyboard: TRUE
+    orientation: columns 
     theme: yeti
 ---
 
-Introduction
-==================
+# Introduction
 
 ```{r, echo = FALSE, include= FALSE}
 library(tidyverse)
@@ -44,12 +44,14 @@ Albums <-
 ```
 
 ***
-**DO NOT SHOW THIS IN CLASS** Today, Beyoncé is one of my favorite artists. She has already had a long career and has produced a number of albums, including *Dangerously In Love*, *B-Day*, *I Am Sacha Fierce*, *4*, *Beyoncé*, *Lemonade* and *The Lion King*. One of the reasons I like Beyoncé and her music so much is because she has such a varied style in her albums and that's why I can always rely on her music. On extravagant moments I like to listen to *4*, if I want to listen to old pop classics like Halo, I put on *I Am Sacha Fierce*, and when I'm not feeling well I listen to *Lemonade* for a boost of self-confidence. Because I like Beyoncé's style variation between albums so much, I think it would be nice to research with SpotifyR how her music has developed in recent years and how this is reflected in the characteristics of her albums. By using SpotifyR audio features like acousticness, danceability, energy, instrumentalness, key, liveness, loudness, mode, speechiness, tempo, and valence. Furthermore, I'd like to research if demographics have changed since her album *Dangerously In Love* has come out untill today. To dive a bit deeper in her work, I would like to compare earlier songs, for example *Halo* and more recent songs, like *Drunk In Love*. 
+**DO NOT SHOW THIS IN CLASS** Today, Beyoncé is one of my favorite artists. She has already had a long career and has produced a number of albums, including *Dangerously In Love*, *B-Day*, *I Am Sacha Fierce*, *4*, *Beyoncé*, *Lemonade* and *The Lion King*. One of the reasons I like Beyoncé and her music so much is because she has such a varied style in her albums and that's why I can always rely on her music. On extravagant moments I like to listen to *4*, if I want to listen to old pop classics like Halo, I put on *I Am Sacha Fierce*, and when I'm not feeling well I listen to *Lemonade* for a boost of self-confidence. Because I like Beyoncé's style variation between albums so much, I think it would be nice to research with SpotifyR how her music has developed in recent years. By using SpotifyR audio features acousticness, energy, valence, dancaebility, speechness, and key. To dive a bit deeper in Beyoncé's songs, I would like to compare an earlier song *Halo* with a more recent song *Drunk In Love*. 
 
-Music Characteristics
-==================
+# Albums: Their Musical Content 
 
-### Energy, valence, acousticness, and danceability 
+Column {data-width=500}
+------------------------------------------------
+
+### Energy, Valence, Acousticness, and Danceability 
 
 ```{r, echo = FALSE}
 VaEnAcDa <- ggplot(Albums, aes(x = valence, y = energy, color = acousticness, size = danceability, text=(paste("Track:", track.name, "<br>", 
@@ -79,6 +81,9 @@ ggplotly(VaEnAcDa, tooltip=c("text"))
 ```
 ***
 In the scatterplot, the energy, valence, acousticness, and danceability of Beyoncé's songs are shown. Overall, Beyoncé's songs have an acousticness below 0.5, which means low confidence that the track is acoustic. You can also clearly see the difference between Beyoncé's albums *Dangerously In Love*, *B-Day Deluxe Edition*, and *4* in valence compared to the other albums. The former have a higher valence than the other albums. 
+
+Column {data-width=500}
+-----------------------------------
 
 ### Speechiness 
 
@@ -123,6 +128,7 @@ ggplotly(Speechness, tooltip=c("text"))
 ***
 I wanted to research speechiness, a.k.a. the presence of spoken words, in Beyoncé's songs. According to Spotify, values between 0.33 and 0.66 describe tracks that both contain music and speech, values above 0.66 describe tracks that are probably made entirely of spoken words, and tracks with values below 0.33 most likely contain music and other non-speech-like sounds. Based on the values, the differences between the speechiness scores and 0.33 are used, so the emphasis lies on rap songs vs. more instrumental songs.  If the difference is above 0, the song probably consists (almost) entirely of spoken words. And the lower the values below 0, the less spoken words the songs contain. 
 Now that I've run the code, I see that Beyoncé primarily has a speechiness value below 0.66. That's why I'm thinking of changing the code so that values below 0.66 are more emphasized instead of values above 0.66.
+
 
 ### Key
 
@@ -171,10 +177,13 @@ ggplotly(KeyAlbums, tooltip=c("text"))
 ***
 I created this graph because I thought it would tell a lot about the albums. The graph shows that Beyoncé key variation in her songs and albums.
 
-Music Synchronisation With Chromagrams
-==================
 
-### Figure 1
+# Halo vs. Drunk In Love
+
+Column {data-width=500}
+--------------------------------
+
+### Halo
 
 ```{r, echo = FALSE}
 Helo <-
@@ -204,7 +213,10 @@ Helo %>%
 ```
 ***
 
-### Figure 2
+Column {data-width=500}
+-------------------------------------
+
+### Drunk In Love
 
 ```{r, echo = FALSE}
 DrunkInLove <-
