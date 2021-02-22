@@ -100,10 +100,10 @@ purple <- "#8e00ed"
 ```{r, echo = FALSE}
 
 Albums2 <- Albums%>%
-  mutate(difference=speechiness-0.33)
+  mutate(Speechiness=speechiness-0.33)
 
 
-Speechness <- ggplot(Albums2, aes(x=reorder(track.name, difference), y=difference, fill=playlist_name, text=(paste("Track:", track.name, "<br>",
+Speechness <- ggplot(Albums2, aes(x=reorder(track.name, Speechiness), y=Speechiness, fill=playlist_name, text=(paste("Track:", track.name, "<br>",
                                       "Speechiness:", speechiness))))+
   geom_col()+
   scale_fill_manual(values=c(green, yellow, pink, blue, orange, red, purple))+
@@ -114,9 +114,9 @@ Speechness <- ggplot(Albums2, aes(x=reorder(track.name, difference), y=differenc
         axis.ticks.y=element_blank(),
         panel.grid.major = element_blank(),
         legend.position="none")+
-  ylab("Speechiness Difference")+
+  ylab("Speechiness")+
   facet_wrap(~ playlist_name)+
-  ggtitle("Speechiness Difference") +
+  ggtitle("Speechiness of Albums") +
     theme(plot.title = element_text(family = 'Arial', 
                                   face = 'bold', 
                                   size = 15)) +
@@ -126,8 +126,7 @@ ggplotly(Speechness, tooltip=c("text"))
 
 ```
 ***
-I wanted to research speechiness, a.k.a. the presence of spoken words, in Beyoncé's songs. According to Spotify, values between 0.33 and 0.66 describe tracks that both contain music and speech, values above 0.66 describe tracks that are probably made entirely of spoken words, and tracks with values below 0.33 most likely contain music and other non-speech-like sounds. Based on the values, the differences between the speechiness scores and 0.33 are used, so the emphasis lies on rap songs vs. more instrumental songs.  If the difference is above 0, the song probably consists (almost) entirely of spoken words. And the lower the values below 0, the less spoken words the songs contain. 
-Now that I've run the code, I see that Beyoncé primarily has a speechiness value below 0.66. That's why I'm thinking of changing the code so that values below 0.66 are more emphasized instead of values above 0.66.
+In this graph, the speechiness of Beyoncé's albums is shown. Songs with values above zero have a rap-like character (a lot of spoken words), and the lower below zero the value is, the more the song has an instrumental character instead of words (which Beyoncé's songs mostly have as you can see). 
 
 
 ### Key
@@ -163,7 +162,7 @@ KeyAlbums <- ggplot(KeyTable, aes(x=key2, fill=playlist_name, y = n,
   labs(x="Key", y="Percent of Songs")+
   guides(fill=guide_legend(title="Playlist"))+
   theme_minimal()+
-  ggtitle("Musical Key Percentage by Playlist") +
+  ggtitle("Musical Key Percentage by Album") +
   theme(plot.title = element_text(family = 'Arial', 
                                   face = 'bold', 
                                   size = 15)) +
