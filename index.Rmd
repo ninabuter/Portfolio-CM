@@ -41,7 +41,9 @@ Albums <-
     Lemonade %>% mutate(category = 'Lemonade'),
     TheLionKing %>% mutate(category = 'The Lion King')
   )
+Albums$category = factor(Albums$category, levels=c('Dangerously In Love', 'B-Day Deluxe Edition', 'I Am Sacha Fierce', '4', 'Beyoncé', 'Lemonade', 'The Lion King'))
 ```
+
 
 ***
 **DO NOT SHOW THIS IN CLASS** Today, Beyoncé is one of my favorite artists. She has already had a long career and has produced a number of albums, including *Dangerously In Love*, *B-Day*, *I Am Sacha Fierce*, *4*, *Beyoncé*, *Lemonade* and *The Lion King*. One of the reasons I like Beyoncé and her music so much is because she has such a varied style in her albums and that's why I can always rely on her music. On extravagant moments I like to listen to *4*, if I want to listen to old pop classics like Halo, I put on *I Am Sacha Fierce*, and when I'm not feeling well I listen to *Lemonade* for a boost of self-confidence. Because I like Beyoncé's style variation between albums so much, I think it would be nice to research with SpotifyR how her music has developed in recent years. By using SpotifyR audio features acousticness, energy, valence, dancaebility, speechness, and key. To dive a bit deeper in Beyoncé's songs, I would like to compare an earlier song *Halo* with a more recent song *Drunk In Love*. 
@@ -63,7 +65,7 @@ VaEnAcDa <- ggplot(Albums, aes(x = valence, y = energy, color = acousticness, si
   geom_jitter(alpha = 0.5, width = 0.1) +
   facet_wrap(~category) +
   scale_color_gradient(low = "light blue", high = "black") +
-  ggtitle('Beyoncé: Different Albums') +
+  ggtitle('Beyoncé: Different Albums (In Chronological Order)') +
   xlab("Valence") + ylab("Energy") +
   theme(plot.title = element_text(family = 'Arial', 
                                   face = 'bold', 
@@ -100,7 +102,7 @@ purple <- "#8e00ed"
 ```{r, echo = FALSE}
 
 Albums2 <- Albums%>%
-  mutate(Speechiness=speechiness-0.33)
+  mutate(Speechiness=speechiness)
 
 
 Speechness <- ggplot(Albums2, aes(x=reorder(track.name, Speechiness), y=Speechiness, fill=playlist_name, text=(paste("Track:", track.name, "<br>",
@@ -115,8 +117,8 @@ Speechness <- ggplot(Albums2, aes(x=reorder(track.name, Speechiness), y=Speechin
         panel.grid.major = element_blank(),
         legend.position="none")+
   ylab("Speechiness")+
-  facet_wrap(~ playlist_name)+
-  ggtitle("Speechiness of Albums") +
+  facet_wrap(~ category)+
+  ggtitle("Speechiness of Albums (In Chronological Order)") +
     theme(plot.title = element_text(family = 'Arial', 
                                   face = 'bold', 
                                   size = 15)) +
@@ -160,7 +162,7 @@ KeyAlbums <- ggplot(KeyTable, aes(x=key2, fill=playlist_name, y = n,
   scale_x_discrete(limits = Toonsoort) +
   scale_fill_manual(values=c(green, yellow, pink, blue, orange, red, purple))+
   labs(x="Key", y="Percent of Songs")+
-  guides(fill=guide_legend(title="Playlist"))+
+  guides(fill=guide_legend(title="Albums"))+
   theme_minimal()+
   ggtitle("Musical Key Percentage by Album") +
   theme(plot.title = element_text(family = 'Arial', 
