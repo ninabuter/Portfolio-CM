@@ -57,9 +57,9 @@ Column {data-width=500}
 
 ```{r, echo = FALSE}
 VaEnAcDa <- ggplot(Albums, aes(x = valence, y = energy, color = acousticness, size = danceability, text=(paste("Track:", track.name, "<br>", 
-            "Acousticness:", acousticness, "<br>",
             "Energy:", energy, "<br>",
             "Valence:", valence, "<br>",
+            "Acousticness:", acousticness, "<br>",
             "Danceability:", danceability, "<br>")))) +
   geom_point(alpha = 0.5, size = 2) +
   geom_jitter(alpha = 0.5, width = 0.1) +
