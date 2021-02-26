@@ -45,7 +45,7 @@ Albums <-
 Albums$category = factor(Albums$category, levels=c('Dangerously In Love', 'B-Day Deluxe Edition', 'I Am Sacha Fierce', '4', 'Beyoncé', 'Lemonade', 'The Lion King'))
 ```
 
-![Beyoncé's albums](https://images.app.goo.gl/9FtKcw65eK18JFv66) 
+
 
 
 Nowadays, Beyoncé is one of my favorite artists. One of the reasons I like to listen to Beyoncé's music is because she has such a diverse style in her albums. You can find various music genres come back in her music, like R&B, soul, (dance)pop, and hiphop. Therefore, I can mostly rely on at least some of her songs to be fitting to my mood. So far she has produced the following albums, among others:
@@ -230,7 +230,11 @@ LoveOnTop %>%
   coord_fixed() +
   scale_fill_viridis_c(guide = "none") +
   theme_classic() +
-  labs(x = "", y = "") +
+  labs(x = "", y = "")
+  
+```
+
+```{r}
 LoveOnTop %>%
   compmus_self_similarity(pitches, "cosine") %>% 
   ggplot(
@@ -247,8 +251,6 @@ LoveOnTop %>%
   scale_fill_viridis_c(guide = "none") +
   theme_classic() +
   labs(x = "", y = "")
-  
 ```
-
 
 
