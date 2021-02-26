@@ -1,13 +1,14 @@
 ---
 title: "Beyoncé's Discography"
+author: "Nina Buter"
+date: "Block 4"
 output: 
   flexdashboard::flex_dashboard:
     storyboard: TRUE
-    orientation: columns 
     theme: yeti
 ---
 
-# Introduction
+### Beyoncé's **discography**, and how has her **musical style** changed over time? 
 
 ```{r, echo = FALSE, include= FALSE}
 library(tidyverse)
@@ -44,16 +45,23 @@ Albums <-
 Albums$category = factor(Albums$category, levels=c('Dangerously In Love', 'B-Day Deluxe Edition', 'I Am Sacha Fierce', '4', 'Beyoncé', 'Lemonade', 'The Lion King'))
 ```
 
+![Beyoncé's albums](https://images.app.goo.gl/9FtKcw65eK18JFv66) 
 
-***
-**DO NOT SHOW THIS IN CLASS** Today, Beyoncé is one of my favorite artists. She has already had a long career and has produced a number of albums, including *Dangerously In Love*, *B-Day*, *I Am Sacha Fierce*, *4*, *Beyoncé*, *Lemonade* and *The Lion King*. One of the reasons I like Beyoncé and her music so much is because she has such a varied style in her albums and that's why I can always rely on her music. On extravagant moments I like to listen to *4*, if I want to listen to old pop classics like Halo, I put on *I Am Sacha Fierce*, and when I'm not feeling well I listen to *Lemonade* for a boost of self-confidence. Because I like Beyoncé's style variation between albums so much, I think it would be nice to research with SpotifyR how her music has developed in recent years. By using SpotifyR audio features acousticness, energy, valence, dancaebility, speechness, and key. To dive a bit deeper in Beyoncé's songs, I would like to compare an earlier song *Halo* with a more recent song *Drunk In Love*. 
 
-# Albums: Their Musical Content 
+Nowadays, Beyoncé is one of my favorite artists. One of the reasons I like to listen to Beyoncé's music is because she has such a diverse style in her albums. You can find various music genres come back in her music, like R&B, soul, (dance)pop, and hiphop. Therefore, I can mostly rely on at least some of her songs to be fitting to my mood. So far she has produced the following albums, among others:
 
-Column {data-width=500}
-------------------------------------------------
+* *Dangerously In Love*
+* *B-Day*
+* *I Am Sacha Fierce*
+* *4*
+* *Beyoncé*
+* *Lemonade*
+* *The Lion King*
 
-### Energy, Valence, Acousticness, and Danceability 
+On extravagant moments I like to listen to *4*, if I want to listen to old pop classics like Halo, I put on *I Am Sacha Fierce*, and when I'm not feeling well I listen to *Lemonade* for a boost of self-confidence. Because I like Beyoncé's diversity in styles and genres in and between albums, I will research with the SpotifyR features how her music has developed over the seven albums I've mentioned above. By applying and researching the SpotifyR audio features acousticness, energy, valence, dancaebility, speechness, and key of her albums, I'm hoping to see a shift in these features, so I know that I am not being illusional about the variety of Beyoncé's music. To dive a bit deeper in Beyoncé's songs, I would like to compare an earlier song *Halo* with a more recent song *Drunk In Love*, and see how the structure and timber of these songs differ on a deeper level. 
+
+
+### Albums show a **high diversity in character**. However, a **shift** in **valence** and **acousticness**. 
 
 ```{r, echo = FALSE}
 VaEnAcDa <- ggplot(Albums, aes(x = valence, y = energy, color = acousticness, size = danceability, text=(paste("Track:", track.name, "<br>", 
@@ -82,10 +90,10 @@ VaEnAcDa <- ggplot(Albums, aes(x = valence, y = energy, color = acousticness, si
 ggplotly(VaEnAcDa, tooltip=c("text"))
 ```
 ***
-In the scatterplot, the energy, valence, acousticness, and danceability of Beyoncé's songs are shown. Overall, Beyoncé's songs have an acousticness below 0.5, which means low confidence that the track is acoustic. You can also clearly see the difference between Beyoncé's albums *Dangerously In Love*, *B-Day Deluxe Edition*, and *4* in valence compared to the other albums. The former have a higher valence than the other albums. 
-
-Column {data-width=500}
------------------------------------
+* **Energy, Valence, Acousticness, and Danceability**
+* Overall, the scatterplots show that the the songs of every album show a variety in values of energy, valence, acousticness and danceability. This shows that her albums are **not static**, but that the the albums have **a high diversity in character**. 
+* However, her overall **valence level** of her albums has **shifted downwards** after the release of *Beyoncé*. Before *Beyoncé*, valence values of her songs were never even close to zero, whereas her last three albums contain more **lower-valued valence songs**. 
+* Furthermore, acousticness has increased a bit in her last two albums, with values above 0.9. This was only seen once in her album *Dangerously In Love*, but not again untill *Lemonade* and *The Lion King*. 
 
 ### Speechiness 
 
@@ -128,10 +136,11 @@ ggplotly(Speechness, tooltip=c("text"))
 
 ```
 ***
-In this graph, the speechiness of Beyoncé's albums is shown. Songs with values above zero have a rap-like character (a lot of spoken words), and the lower below zero the value is, the more the song has an instrumental character instead of words (which Beyoncé's songs mostly have as you can see). 
+* **Speechiness**
+* Overall, the **speechiness** of Beyoncé's albums is more on the lower side, showing a lot of songs with **speechiness-values below 0.1**. According to Spotify API, this means that her albums contain mostly **non-speech-like songs** (songs < 0.33).  However, this is not what I personally experience when I listen to Beyoncé's music. Therefore, I'm not sure what to do with this graph.
 
 
-### Key
+### **Albums** show a **diversity in keys**, which means a **contrast between the songs** in her albums. 
 
 ```{r, echo = FALSE,include= FALSE}
 KeyTable <- Albums%>%
@@ -176,73 +185,70 @@ KeyAlbums <- ggplot(KeyTable, aes(x=key2, fill=playlist_name, y = n,
 ggplotly(KeyAlbums, tooltip=c("text"))
 ```
 ***
-I created this graph because I thought it would tell a lot about the albums. The graph shows that Beyoncé key variation in her songs and albums.
+* **Key**
+* After I created this graph, purely out of interest in the keys she uses for her songs, I was not sure if this graph would be of any use for my research. 
+* However, the graph does show something I feel is important for my research, namely the **diversity in keys** she  uses in her albums. Besides the fact that the **D#/Eb key is neglected** in her songs, all the keys are used in songs of **at least three** of her albums. I'm not sure if this has in any way effect on my opinion that her albums are so diverse, but it shows some **contrast between the songs** in her albums.
 
 
-# Halo vs. Drunk In Love
+### The Structure of *Love On Top*. **Timbre and pitch features** shown in **self-similarity matrix**. 
 
-Column {data-width=500}
---------------------------------
-
-### Halo
-
-```{r, echo = FALSE}
-Helo <-
-  get_tidy_audio_analysis("2CvOqDpQIMw69cCzWqr5yr") %>%
-  select(segments) %>%
-  unnest(segments) %>%
-  select(start, duration, pitches)
+```{r, echo=FALSE, include=FALSE}
+LoveOnTop <-
+  get_tidy_audio_analysis("1z6WtY7X4HQJvzxC4UgkSf") %>% 
+  compmus_align(bars, segments) %>%                     
+  select(bars) %>%                                      
+  unnest(bars) %>%                                      
+  mutate(
+    pitches =
+      map(segments,
+        compmus_summarise, pitches,
+        method = "rms", norm = "euclidean"              
+      )
+  ) %>%
+  mutate(
+    timbre =
+      map(segments,
+        compmus_summarise, timbre,
+        method = "rms", norm = "euclidean"              
+      )
+  )
 ```
 
-```{r, echo = FALSE}
-Helo %>%
-  mutate(pitches = map(pitches, compmus_normalise, "euclidean")) %>%
-  compmus_gather_chroma() %>% 
+```{r}
+LoveOnTop %>%
+  compmus_self_similarity(timbre, "cosine") %>% 
   ggplot(
     aes(
-      x = start + duration / 2,
-      width = duration,
-      y = pitch_class,
-      fill = value
+      x = xstart + xduration / 2,
+      width = xduration,
+      y = ystart + yduration / 2,
+      height = yduration,
+      fill = d
     )
   ) +
   geom_tile() +
-  ggtitle('Song: Helo') +
-  labs(x = "Time (s)", y = NULL, fill = "Magnitude") +
-  theme_minimal() +
-  scale_fill_viridis_c()
-```
-***
-
-Column {data-width=500}
--------------------------------------
-
-### Drunk In Love
-
-```{r, echo = FALSE}
-DrunkInLove <-
-  get_tidy_audio_analysis("6jG2YzhxptolDzLHTGLt7S") %>%
-  select(segments) %>%
-  unnest(segments) %>%
-  select(start, duration, pitches)
-```
-
-```{r, echo = FALSE}
-DrunkInLove %>%
-  mutate(pitches = map(pitches, compmus_normalise, "euclidean")) %>%
-  compmus_gather_chroma() %>% 
+  coord_fixed() +
+  scale_fill_viridis_c(guide = "none") +
+  theme_classic() +
+  labs(x = "", y = "") +
+LoveOnTop %>%
+  compmus_self_similarity(pitches, "cosine") %>% 
   ggplot(
     aes(
-      x = start + duration / 2,
-      width = duration,
-      y = pitch_class,
-      fill = value
+      x = xstart + xduration / 2,
+      width = xduration,
+      y = ystart + yduration / 2,
+      height = yduration,
+      fill = d
     )
   ) +
   geom_tile() +
-  ggtitle('Song: Drunk In Love') +
-  labs(x = "Time (s)", y = NULL, fill = "Magnitude") +
-  theme_minimal() +
-  scale_fill_viridis_c()
+  coord_fixed() +
+  scale_fill_viridis_c(guide = "none") +
+  theme_classic() +
+  labs(x = "", y = "")
+  
 ```
-***
+
+
+
