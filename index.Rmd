@@ -43,92 +43,81 @@ Albums <-
 Albums$category = factor(Albums$category, levels=c('Dangerously In Love', 'B-Day Deluxe Edition', 'I Am Sacha Fierce', '4', 'Beyoncé', 'Lemonade', 'The Lion King'))
 ```
 
-### Structure of *Love On Top*. **Timbre** and **pitch** features shown in **self-similarity matrix**. 
+### Track-Level Summaries
+```{r}
+DangerouslyInLove <-
+  get_playlist_audio_features(
+    "thesoundsofspotify",
+    "3fMQZa4rswBIb9hs6n217m"
+  ) %>%
+  slice(1:30) %>%
+  add_audio_analysis()
+Beyoncé <-
+  get_playlist_audio_features(
+    "thesoundsofspotify",
+    "2zCrPKo2K8KuP7PSCurVJd"
+  ) %>%
+  slice(1:30) %>%
+  add_audio_analysis()
+oldvsnew <-
+  DangerouslyInLove %>%
+  mutate(genre = "DangerouslyInLove") %>%
+  bind_rows(Beyoncé %>% mutate(genre = "Beyoncé"))
 
-```{r, echo=FALSE}
-LoveOnTop <-
-  get_tidy_audio_analysis("1z6WtY7X4HQJvzxC4UgkSf") %>%
-  compmus_align(bars, segments) %>%
-  select(bars) %>%
-  unnest(bars) %>%
+oldvsnew %>%
   mutate(
-    pitches =
-      map(segments,
-        compmus_summarise, pitches,
-        method = "rms", norm = "euclidean"
+    sections =
+      map(
+        sections,                                    # sections or segments
+        summarise_at,
+        vars(tempo, loudness, duration),             # features of interest
+        list(section_mean = mean, section_sd = sd)   # aggregation functions
       )
   ) %>%
+  unnest(sections) %>%
+  ggplot(
+    aes(
+      x = tempo,
+      y = tempo_section_sd,
+      colour = genre,
+      alpha = loudness
+    )
+  ) +
+  geom_point(aes(size = duration / 60)) +
+  geom_rug() +
+  theme_minimal() +
+  ylim(0, 5) +
+  labs(
+    x = "Mean Tempo (bpm)",
+    y = "SD Tempo",
+    colour = "Album",
+    size = "Duration (min)",
+    alpha = "Volume (dBFS)"
+  )
+```
+
+### Timbre Coefficients
+```{r}
+oldvsnew %>%
   mutate(
     timbre =
-      map(segments,
-        compmus_summarise, timbre,
-        method = "rms", norm = "euclidean"
+      map(
+        segments,
+        compmus_summarise,
+        timbre,
+        method = "mean"
       )
-  )
-bind_rows(
-  LoveOnTop %>% 
-    compmus_self_similarity(pitches, "manhattan") %>% 
-    mutate(d = d / max(d), type = "Chroma"),
-  LoveOnTop %>% 
-    compmus_self_similarity(timbre, "euclidean") %>% 
-    mutate(d = d / max(d), type = "Timbre")
-) %>%
-  mutate() %>% 
-  ggplot(
-    aes(
-      x = xstart + xduration / 2,
-      width = xduration,
-      y = ystart + yduration / 2,
-      height = yduration,
-      fill = d
-    )
-  ) +
-  geom_tile() +
-  coord_fixed() +
-  facet_wrap(~type) +
-  theme_classic() +
-  scale_fill_viridis_c(option = "E", guide = "none") +
-  labs(x = "", y = "")
+  ) %>%
+  select(genre, timbre) %>%
+  compmus_gather_timbre() %>%
+  ggplot(aes(x = basis, y = value, fill = genre)) +
+  geom_violin() +
+  scale_fill_viridis_d() +
+  labs(x = "Spotify Timbre Coefficients", y = "", fill = "Albums")
 ```
-
-***
-* In the two self-similarity matrixes (SSMs) you can see **chroma** as well as **timbre** features of the song *Love On Top*. Left, you see the chroma features, which show the **harmonic and melodic characteristics**. Right, the timbre features are shown, which show the changes in **timbre and instrumentation**. 
-* In the chroma SSM, the dark diagonal lines from 0 to 180 seconds show **repetition in pitches**. The diagonal lines disappear after approximately 180 seconds. I think this happens because in the last two minutes of the song, the chorus is repeated and goes through **four key changes**, starting in C major and proceeding to Db major, then to D major, Eb major, and finally to E major. 
-* In the timbre SSM, I can't really see any patterns. I think there's mostly an **similar timbre** throughout the song, and there are no significant changes in the beats or instrumentation. 
-
-### **Chromagram** of *Love On Top*. Here, the **modulations** are shown more clearly. 
-
-```{r, echo=FALSE}
-LoveOnTop2 <-
-  get_tidy_audio_analysis("1z6WtY7X4HQJvzxC4UgkSf") %>%
-  select(segments) %>%
-  unnest(segments) %>%
-  select(start, duration, pitches)
-
-LoveOnTop2 %>%
-  mutate(pitches = map(pitches, compmus_normalise, "euclidean")) %>%
-  compmus_gather_chroma() %>% 
-  ggplot(
-    aes(
-      x = start + duration / 2,
-      width = duration,
-      y = pitch_class,
-      fill = value
-    )
-  ) +
-  geom_tile() +
-  labs(x = "Time (s)", y = NULL, fill = "Magnitude") +
-  theme_minimal() +
-  scale_fill_viridis_c()
-
-```
-
-***
-In this chromagram, the **key changes/modulations** of *Love On Top* (which I explained in the self-similarity matrix) are shown more clearly. As you can see, after 180 seconds the song switches from C major to Db major, D major, Eb major, and lastly to E major.
-
 
 ### Beyoncé's **discography**, and how has her music **changed** over time? 
-Nowadays, Beyoncé is one of my favorite artists. One of the reasons I like to listen to Beyoncé's music is because she has such a diverse style in her albums. You can find various music genres come back in her music, like R&B, soul, (dance)pop, and hiphop. Therefore, I can mostly rely on at least some of her songs to be fitting to my mood. So far she has produced the following albums, among others:
+Nowadays, Beyoncé is one of my favorite artists. One of the reasons I like to listen to Beyoncé's music is because she has such a diverse style in her albums. You can find various music genres come back in her music, like R&B, soul, (dance)pop, hiphop, and funk. So far she has produced the following albums, among others:
 
 * *Dangerously In Love*
 * *B-Day*
@@ -138,7 +127,10 @@ Nowadays, Beyoncé is one of my favorite artists. One of the reasons I like to l
 * *Lemonade*
 * *The Lion King*
 
-On extravagant moments I like to listen to *4*, if I want to listen to old pop classics like Halo, I put on *I Am Sacha Fierce*, and when I'm not feeling well I listen to *Lemonade* for a boost of self-confidence. Because I like Beyoncé's diversity in styles and genres in and between albums, I will research with the SpotifyR features how her music has developed over the seven albums I've mentioned above. By applying and researching the SpotifyR audio features acousticness, energy, valence, dancaebility, speechness, and key of her albums, I'm hoping to see a shift in these features, so I know that I am not being illusional about the variety of Beyoncé's music. To dive a bit deeper in Beyoncé's songs, I would like to compare an earlier song *Halo* with a more recent song *Drunk In Love*, and see how the structure and timber of these songs differ on a deeper level. 
+On extravagant moments I like to listen to *4*, if I want to listen to old pop classics like Halo, I put on *I Am Sacha Fierce*, and when I'm not feeling well I listen to *Lemonade* for a boost of self-confidence. Because I like Beyoncé's diversity in styles and genres in and between albums, I will research with the SpotifyR features how her music has developed over the seven albums I've mentioned above. I personally notice a number of differences between her albums, for example that her newer albums contain less acoustic songs and that the overall vibe is less positive. Therefore, I'm going to research the acousticness and valence of her albums. I'm expecting them to have shifted downwards after the release of her album *Beyoncé*, that's when I hear a difference. In addition, I'm interested in the danceability, energy, and speechiness of her albums, but I think these features are all very high for all her albums. 
+ 
+
+Furthermore, I would like to visualize and research the specific key changes in the song *Love On Top*, since this song is well known for having "definitively the greatest key changes in all pop music". Following this I am also curious in the key variation of Beyoncé's songs and albums, so I will take a look at that as well.
 
 
 ### Albums show a **high diversity in character**. A **shift** in **valence** and **acousticness** over time.
@@ -268,3 +260,87 @@ ggplotly(KeyAlbums, tooltip=c("text"))
 * In this graph, the musical key percentage of Beyoncé's albums is shown. 
 * After I created this graph, purely out of interest in the keys she uses for her songs, I was not sure if this graph would be of any use for my research. 
 * However, the graph does show something I feel is important for my research, namely the **diversity in keys** she  uses in her albums. Besides the fact that the **D#/Eb key is neglected** in her songs, all the keys are used in songs of **at least three** of her albums. I'm not sure if this has in any way effect on my opinion that her albums are so diverse, but it shows some **contrast between the songs** in her albums.
+
+### Structure of *Love On Top*. **Timbre** and **pitch** features shown in **self-similarity matrix**. 
+
+```{r, echo=FALSE}
+LoveOnTop <-
+  get_tidy_audio_analysis("1z6WtY7X4HQJvzxC4UgkSf") %>%
+  compmus_align(bars, segments) %>%
+  select(bars) %>%
+  unnest(bars) %>%
+  mutate(
+    pitches =
+      map(segments,
+        compmus_summarise, pitches,
+        method = "mean", norm = "manhattan"
+      )
+  ) %>%
+  mutate(
+    timbre =
+      map(segments,
+        compmus_summarise, timbre,
+        method = "rms", norm = "euclidean"
+      )
+  )
+bind_rows(
+  LoveOnTop %>% 
+    compmus_self_similarity(pitches, "euclidean") %>% 
+    mutate(d = d / max(d), type = "Chroma"),
+  LoveOnTop %>% 
+    compmus_self_similarity(timbre, "euclidean") %>% 
+    mutate(d = d / max(d), type = "Timbre")
+) %>%
+  mutate() %>% 
+  ggplot(
+    aes(
+      x = xstart + xduration / 2,
+      width = xduration,
+      y = ystart + yduration / 2,
+      height = yduration,
+      fill = d
+    )
+  ) +
+  geom_tile() +
+  coord_fixed() +
+  facet_wrap(~type) +
+  theme_classic() +
+  scale_fill_viridis_c() +
+  labs(x = "", y = "")
+```
+
+***
+* In the two self-similarity matrices (SSMs) you can see **chroma** as well as **timbre** features of the song *Love On Top*. Left, you see the chroma features, which show the **harmonic and melodic characteristics**. Right, the timbre features are shown, which show the changes in **timbre and instrumentation**. 
+* In the chroma SSM, the dark diagonal lines from 0 to 180 seconds show **repetition in pitches**. The diagonal lines disappear after approximately 180 seconds. I think this happens because in the last two minutes of the song, the chorus is repeated and goes through **four key changes**, starting in C major and proceeding to Db major, then to D major, Eb major, and finally to E major. 
+* In the timbre SSM, I can't really see any patterns. I think there's mostly an **similar timbre** throughout the song, and there are no significant changes in the beats or instrumentation. 
+
+### **Chromagram** of *Love On Top*. Here, the **modulations** are shown more clearly. 
+
+```{r, echo=FALSE}
+LoveOnTop2 <-
+  get_tidy_audio_analysis("1z6WtY7X4HQJvzxC4UgkSf") %>%
+  select(segments) %>%
+  unnest(segments) %>%
+  select(start, duration, pitches)
+
+LoveOnTop2 %>%
+  mutate(pitches = map(pitches, compmus_normalise, "euclidean")) %>%
+  compmus_gather_chroma() %>% 
+  ggplot(
+    aes(
+      x = start + duration / 2,
+      width = duration,
+      y = pitch_class,
+      fill = value
+    )
+  ) +
+  geom_tile() +
+  labs(x = "Time (s)", y = NULL, fill = "Magnitude") +
+  theme_minimal() +
+  scale_fill_viridis_c()
+
+```
+
+***
+In this chromagram, the **key changes/modulations** of *Love On Top* (which I explained in the self-similarity matrix) are shown more clearly. As you can see, after 180 seconds the song switches from C major to Db major, D major, Eb major, and lastly to E major.
+
