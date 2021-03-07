@@ -43,12 +43,20 @@ Albums <-
 Albums$category = factor(Albums$category, levels=c('Dangerously In Love', 'B-Day Deluxe Edition', 'I Am Sacha Fierce', '4', 'Beyoncé', 'Lemonade', 'The Lion King'))
 ```
 
-### Track-Level Summaries
-```{r}
+### Songs of the album *Beyoncé* show a **similar tempo**, which is a different pattern than the songs of the other albums, which have a more **varied tempo**. 
+
+```{r, echo = FALSE}
 DangerouslyInLove <-
   get_playlist_audio_features(
     "thesoundsofspotify",
     "3fMQZa4rswBIb9hs6n217m"
+  ) %>%
+  slice(1:30) %>%
+  add_audio_analysis()
+BDayDeluxeEdition <-
+  get_playlist_audio_features(
+    "thesoundsofspotify",
+    "45P8KBiTPKwVWiFtLGUH1V"
   ) %>%
   slice(1:30) %>%
   add_audio_analysis()
@@ -59,10 +67,19 @@ Beyoncé <-
   ) %>%
   slice(1:30) %>%
   add_audio_analysis()
+Lemonade <-
+  get_playlist_audio_features(
+    "thesoundsofspotify",
+    "1JTaxwfuwmdYNdz2EgSJPz"
+  ) %>%
+  slice(1:30) %>%
+  add_audio_analysis()
 oldvsnew <-
   DangerouslyInLove %>%
   mutate(genre = "DangerouslyInLove") %>%
-  bind_rows(Beyoncé %>% mutate(genre = "Beyoncé"))
+  bind_rows(BDayDeluxeEdition %>% mutate(genre = 'B-Day Deluxe Edition'),
+            Beyoncé %>% mutate(genre = "Beyoncé"),
+            Lemonade %>% mutate(genre = 'Lemonade'))
 
 oldvsnew %>%
   mutate(
@@ -91,13 +108,19 @@ oldvsnew %>%
     x = "Mean Tempo (bpm)",
     y = "SD Tempo",
     colour = "Album",
-    size = "Duration (min)",
+    size = "Duration",
     alpha = "Volume (dBFS)"
   )
 ```
 
-### Timbre Coefficients
-```{r}
+***
+* In this graph, I've compared the variables **tempo**, **loudness** and **duration** of two older albums, *Dangerously In Love* and *B-Day Deluxe Edition*, with two newer albums, *Beyoncé* and *Lemonade*. 
+* The album *Beyoncé* seems to be different in tempo than the other albums. It's kind of funny to see that *Beyoncé* has a lot of songs (seven of the fourteen songs) around a mean tempo of 140 bpm, whereas the songs of the other albums are more spread out.
+* I don't see other 'remarkable' things in duration and volume. 
+
+### Albums show major **difference** in **timbre coefficient 2**. 
+
+```{r, echo = FALSE}
 oldvsnew %>%
   mutate(
     timbre =
@@ -115,6 +138,10 @@ oldvsnew %>%
   scale_fill_viridis_d() +
   labs(x = "Spotify Timbre Coefficients", y = "", fill = "Albums")
 ```
+
+***
+* In this graph, the difference in **timbre coefficients** between four of Beyoncé's albums can be seen.
+* I know this graph is a bit intense to take in, and I initially wanted to take out two albums because it's so crowded, but I'm curious about the situation at y = **c02**. You can see **major differences** in this coefficient between the four albums.  
 
 ### Beyoncé's **discography**, and how has her music **changed** over time? 
 Nowadays, Beyoncé is one of my favorite artists. One of the reasons I like to listen to Beyoncé's music is because she has such a diverse style in her albums. You can find various music genres come back in her music, like R&B, soul, (dance)pop, hiphop, and funk. So far she has produced the following albums, among others:
@@ -165,7 +192,7 @@ ggplotly(VaEnAcDa, tooltip=c("text"))
 * In these graphs, energy, valence, acousticness, and danceability are shown of Beyoncé's albums.
 * Overall, the scatterplots show that the the songs of every album show a variety in values of energy, valence, acousticness and danceability. This shows that her albums are **not static**, but that the the albums have **a high diversity in character**. 
 * Furthermore, the overall **valence level** of her albums has **shifted downwards** after the release of *Beyoncé*. Before *Beyoncé*, valence values of her songs were never even close to zero, whereas her last three albums contain more **lower-valued valence songs**. 
-* Besides, acousticness has increased a bit in her last two albums, with values above 0.9. This was only seen once in her album *Dangerously In Love*, but not again untill *Lemonade* and *The Lion King*. 
+* Besides, **acousticness** has **increased** a bit in her last two albums, with values above 0.9. This was only seen once in her album *Dangerously In Love*, but not again untill *Lemonade* and *The Lion King*. 
 
 ### No clear changes in speechiness. 
 
