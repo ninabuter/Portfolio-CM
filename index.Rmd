@@ -146,13 +146,13 @@ oldvsnew %>%
 ### Beyoncé's **discography**, and how has her music **changed** over time? 
 Nowadays, Beyoncé is one of my favorite artists. One of the reasons I like to listen to Beyoncé's music is because she has such a diverse style in her albums. You can find various music genres come back in her music, like R&B, soul, (dance)pop, hiphop, and funk. So far she has produced the following albums, among others:
 
-* *Dangerously In Love*
-* *B-Day*
-* *I Am Sacha Fierce*
-* *4*
-* *Beyoncé*
-* *Lemonade*
-* *The Lion King*
+* *Dangerously In Love* (2003)
+* *B-Day* (2006)
+* *I Am Sacha Fierce* (2008)
+* *4* (2011)
+* *Beyoncé* (2013)
+* *Lemonade* (2016)
+* *The Lion King* (2019)
 
 On extravagant moments I like to listen to *4*, if I want to listen to old pop classics like Halo, I put on *I Am Sacha Fierce*, and when I'm not feeling well I listen to *Lemonade* for a boost of self-confidence and some great hiphop-beats. Because I like Beyoncé's diversity in styles and genres between and in her albums, I will research with the SpotifyR features how her music has developed over the seven albums I've mentioned above. I personally notice a number of differences between her albums, for example that her newer albums contain less acoustic songs and that the overall vibe is less positive. Therefore, I'm going to research the acousticness and valence of her albums. I'm expecting them to have shifted downwards after the release of her album *Beyoncé*, because this album is known for having a different style compared to Beyoncé's earlier albums. In addition, I'm interested in the danceability, energy, and speechiness of her albums. However, I think these features are very high for all her albums, and that no major differences will be seen. Let's see if this assumption is correct! 
  
@@ -337,7 +337,7 @@ bind_rows(
 ```
 
 ***
-* As I already explained in the introduction, I'm interested in the key changes of the song *Love On Top*, because this song is very well-known for it.
+* As I already explained in the introduction, I'm interested in the key changes of the song *Love On Top*, because this song is very well-known for it. Therefore, I will take a look at the chroma and timbre features.
 * In the two self-similarity matrices (SSMs) you can see **chroma** as well as **timbre** features of the song *Love On Top*. Left, you see the chroma features, which show the **harmonic and melodic characteristics**. Right, the timbre features are shown, which show the changes in **timbre and instrumentation**. 
 * In the chroma SSM, the dark diagonal lines from 0 to 180 seconds show **repetition in pitches**. The diagonal lines disappear after approximately 180 seconds. I think this happens because in the last two minutes of the song, the chorus is repeated and goes through **four key changes**, starting in C major and proceeding to Db major, then to D major, Eb major, and finally to E major. 
 * In the timbre SSM, I can't really see any patterns. I think there's mostly an **similar timbre** throughout the song, and there are no significant changes in the beats or instrumentation. 
