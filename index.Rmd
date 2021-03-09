@@ -333,10 +333,11 @@ bind_rows(
   facet_wrap(~type) +
   theme_classic() +
   scale_fill_viridis_c() +
-  labs(x = "", y = "")
+  labs(title = "Song: Love On Top", x = "", y = "")
 ```
 
 ***
+* As I already explained in the introduction, I'm interested in the key changes of the song *Love On Top*, because this song is very well-known for it.
 * In the two self-similarity matrices (SSMs) you can see **chroma** as well as **timbre** features of the song *Love On Top*. Left, you see the chroma features, which show the **harmonic and melodic characteristics**. Right, the timbre features are shown, which show the changes in **timbre and instrumentation**. 
 * In the chroma SSM, the dark diagonal lines from 0 to 180 seconds show **repetition in pitches**. The diagonal lines disappear after approximately 180 seconds. I think this happens because in the last two minutes of the song, the chorus is repeated and goes through **four key changes**, starting in C major and proceeding to Db major, then to D major, Eb major, and finally to E major. 
 * In the timbre SSM, I can't really see any patterns. I think there's mostly an **similar timbre** throughout the song, and there are no significant changes in the beats or instrumentation. 
@@ -362,7 +363,7 @@ LoveOnTop2 %>%
     )
   ) +
   geom_tile() +
-  labs(x = "Time (s)", y = NULL, fill = "Magnitude") +
+  labs(title = "Song: Love On Top", x = "Time (s)", y = NULL, fill = "Magnitude") +
   theme_minimal() +
   scale_fill_viridis_c()
 
