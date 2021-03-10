@@ -13,9 +13,8 @@ library(tidyverse)
 library(spotifyr)
 library(ggplot2)
 library(plotly)
-library(compmus)
 library(flexdashboard)
-
+library(compmus)
 ```
 
 ```{r, echo = FALSE, include=FALSE}
@@ -28,6 +27,8 @@ Lemonade <- get_playlist_audio_features("", "1JTaxwfuwmdYNdz2EgSJPz")
 TheLionKing <- get_playlist_audio_features("", "2oqUwlwt0bY3nqkpFGrtaS")
 
 ```
+
+### Tempogram 1
 
 ```{r, echo = FALSE, include=FALSE}
 Albums <-
@@ -43,105 +44,37 @@ Albums <-
 Albums$category = factor(Albums$category, levels=c('Dangerously In Love', 'B-Day Deluxe Edition', 'I Am Sacha Fierce', '4', 'Beyoncé', 'Lemonade', 'The Lion King'))
 ```
 
-### Songs of the album *Beyoncé* show a **similar tempo**, which is a different pattern than the songs of the other albums, which have a more **varied tempo**. 
+```{r, cache=TRUE}
+memory.limit(size = 35000)
+graveola <- get_tidy_audio_analysis("6Sy9BUbgFse0n0LPA5lwy5")
 
-```{r, echo = FALSE}
-DangerouslyInLove <-
-  get_playlist_audio_features(
-    "thesoundsofspotify",
-    "3fMQZa4rswBIb9hs6n217m"
-  ) %>%
-  slice(1:30) %>%
-  add_audio_analysis()
-BDayDeluxeEdition <-
-  get_playlist_audio_features(
-    "thesoundsofspotify",
-    "45P8KBiTPKwVWiFtLGUH1V"
-  ) %>%
-  slice(1:30) %>%
-  add_audio_analysis()
-Beyoncé <-
-  get_playlist_audio_features(
-    "thesoundsofspotify",
-    "2zCrPKo2K8KuP7PSCurVJd"
-  ) %>%
-  slice(1:30) %>%
-  add_audio_analysis()
-Lemonade <-
-  get_playlist_audio_features(
-    "thesoundsofspotify",
-    "1JTaxwfuwmdYNdz2EgSJPz"
-  ) %>%
-  slice(1:30) %>%
-  add_audio_analysis()
-oldvsnew <-
-  DangerouslyInLove %>%
-  mutate(genre = "DangerouslyInLove") %>%
-  bind_rows(BDayDeluxeEdition %>% mutate(genre = 'B-Day Deluxe Edition'),
-            Beyoncé %>% mutate(genre = "Beyoncé"),
-            Lemonade %>% mutate(genre = 'Lemonade'))
-
-oldvsnew %>%
-  mutate(
-    sections =
-      map(
-        sections,                                    # sections or segments
-        summarise_at,
-        vars(tempo, loudness, duration),             # features of interest
-        list(section_mean = mean, section_sd = sd)   # aggregation functions
-      )
-  ) %>%
-  unnest(sections) %>%
-  ggplot(
-    aes(
-      x = tempo,
-      y = tempo_section_sd,
-      colour = genre,
-      alpha = loudness
-    )
-  ) +
-  geom_point(aes(size = duration / 60)) +
-  geom_rug() +
-  theme_minimal() +
-  ylim(0, 5) +
-  labs(
-    x = "Mean Tempo (bpm)",
-    y = "SD Tempo",
-    colour = "Album",
-    size = "Duration",
-    alpha = "Volume (dBFS)"
-  )
+graveola %>%
+  tempogram(window_size = 8, hop_size = 1, cyclic = FALSE) %>%
+  ggplot(aes(x = time, y = bpm, fill = power)) +
+  geom_raster() +
+  scale_fill_viridis_c(guide = "none") +
+  labs(x = "Time (s)", y = "Tempo (BPM)") +
+  theme_classic()
 ```
 
 ***
-* In this graph, I've compared the variables **tempo**, **loudness** and **duration** of two older albums, *Dangerously In Love* and *B-Day Deluxe Edition*, with two newer albums, *Beyoncé* and *Lemonade*. 
-* The album *Beyoncé* seems to be different in tempo than the other albums. It's kind of funny to see that *Beyoncé* has a lot of songs (seven of the fourteen songs) around a mean tempo of 140 bpm, whereas the songs of the other albums are more spread out.
-* I don't see other 'remarkable' things in duration and volume. 
+Bla bla
 
-### Albums show major **difference** in **timbre coefficient 2**. 
+### Tempogram 2
 
-```{r, echo = FALSE}
-oldvsnew %>%
-  mutate(
-    timbre =
-      map(
-        segments,
-        compmus_summarise,
-        timbre,
-        method = "mean"
-      )
-  ) %>%
-  select(genre, timbre) %>%
-  compmus_gather_timbre() %>%
-  ggplot(aes(x = basis, y = value, fill = genre)) +
-  geom_violin() +
-  scale_fill_viridis_d() +
-  labs(x = "Spotify Timbre Coefficients", y = "", fill = "Albums")
+```{r, cache=TRUE}
+memory.limit(size = 35000)
+graveola %>%
+  tempogram(window_size = 8, hop_size = 1, cyclic = TRUE) %>%
+  ggplot(aes(x = time, y = bpm, fill = power)) +
+  geom_raster() +
+  scale_fill_viridis_c(guide = "none") +
+  labs(x = "Time (s)", y = "Tempo (BPM)") +
+  theme_classic()
 ```
 
 ***
-* In this graph, the difference in **timbre coefficients** between four of Beyoncé's albums can be seen.
-* I know this graph is a bit intense to take in, and I initially wanted to take out two albums because it's so crowded, but I'm curious about the situation at y = **c02**. You can see **major differences** in this coefficient between the four albums. I would like to know what this coefficient actually means in the timbre, but I haven't found out so far. 
+Bla bla
 
 ### Beyoncé's **discography**, and how has her music **changed** over time? 
 Nowadays, Beyoncé is one of my favorite artists. One of the reasons I like to listen to Beyoncé's music is because she has such a diverse style in her albums. You can find various music genres come back in her music, like R&B, soul, (dance)pop, hiphop, and funk. So far she has produced the following albums, among others:
@@ -371,4 +304,108 @@ LoveOnTop2 %>%
 
 ***
 In this chromagram, the **key changes/modulations** of *Love On Top* (which I explained in the self-similarity matrix) are shown more clearly. As you can see, after 180 seconds the song switches from C major to Db major, D major, Eb major, and lastly to E major.
+
+### Songs of the album *Beyoncé* show a **similar tempo**, which is a different pattern than the songs of the other albums, which have a more **varied tempo**. 
+
+```{r, echo = FALSE}
+DangerouslyInLove <-
+  get_playlist_audio_features(
+    "thesoundsofspotify",
+    "3fMQZa4rswBIb9hs6n217m"
+  ) %>%
+  slice(1:30) %>%
+  add_audio_analysis()
+BDayDeluxeEdition <-
+  get_playlist_audio_features(
+    "thesoundsofspotify",
+    "45P8KBiTPKwVWiFtLGUH1V"
+  ) %>%
+  slice(1:30) %>%
+  add_audio_analysis()
+Beyoncé <-
+  get_playlist_audio_features(
+    "thesoundsofspotify",
+    "2zCrPKo2K8KuP7PSCurVJd"
+  ) %>%
+  slice(1:30) %>%
+  add_audio_analysis()
+Lemonade <-
+  get_playlist_audio_features(
+    "thesoundsofspotify",
+    "1JTaxwfuwmdYNdz2EgSJPz"
+  ) %>%
+  slice(1:30) %>%
+  add_audio_analysis()
+oldvsnew <-
+  DangerouslyInLove %>%
+  mutate(genre = "DangerouslyInLove") %>%
+  bind_rows(BDayDeluxeEdition %>% mutate(genre = 'B-Day Deluxe Edition'),
+            Beyoncé %>% mutate(genre = "Beyoncé"),
+            Lemonade %>% mutate(genre = 'Lemonade'))
+
+oldvsnew %>%
+  mutate(
+    sections =
+      map(
+        sections,                                    # sections or segments
+        summarise_at,
+        vars(tempo, loudness, duration),             # features of interest
+        list(section_mean = mean, section_sd = sd)   # aggregation functions
+      )
+  ) %>%
+  unnest(sections) %>%
+  ggplot(
+    aes(
+      x = tempo,
+      y = tempo_section_sd,
+      colour = genre,
+      alpha = loudness
+    )
+  ) +
+  geom_point(aes(size = duration / 60)) +
+  geom_rug() +
+  theme_minimal() +
+  ylim(0, 5) +
+  labs(
+    x = "Mean Tempo (bpm)",
+    y = "SD Tempo",
+    colour = "Album",
+    size = "Duration",
+    alpha = "Volume (dBFS)"
+  )
+
+```
+
+***
+* In this graph, I've compared the variables **tempo**, **loudness** and **duration** of two older albums, *Dangerously In Love* and *B-Day Deluxe Edition*, with two newer albums, *Beyoncé* and *Lemonade*. 
+* The album *Beyoncé* seems to be different in tempo than the other albums. It's kind of funny to see that *Beyoncé* has a lot of songs (seven of the fourteen songs) around a mean tempo of 140 bpm, whereas the songs of the other albums are more spread out.
+* I don't see other 'remarkable' things in duration and volume. 
+
+### Albums show major **difference** in **timbre coefficient 2**. 
+
+```{r, echo = FALSE}
+
+variable2 <- oldvsnew %>%
+  mutate(
+    timbre =
+      map(
+        segments,
+        compmus_summarise,
+        timbre,
+        method = "mean"
+      )
+  ) %>%
+  select(genre, timbre) %>%
+  compmus_gather_timbre() %>%
+  ggplot(aes(x = basis, y = value, fill = genre)) +
+  geom_violin() +
+  scale_fill_viridis_d() +
+  labs(x = "Spotify Timbre Coefficients", y = "", fill = "Albums")
+
+ggplotly(variable2)
+```
+
+***
+* In this graph, the difference in **timbre coefficients** between four of Beyoncé's albums can be seen.
+* I know this graph is a bit intense to take in, and I initially wanted to take out two albums because it's so crowded, but I'm curious about the situation at y = **c02**. You can see **major differences** in this coefficient between the four albums. I would like to know what this coefficient actually means in the timbre, but I haven't found out so far. 
 
