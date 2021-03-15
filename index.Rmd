@@ -380,10 +380,10 @@ variable1 <- oldvsnew %>%
       x = tempo,
       y = tempo_section_sd,
       color = genre,
-     
+      alpha = loudness
     )
   ) +
-  geom_point(aes(size = duration / 60, alpha = 0.5)) +
+  geom_point(aes(size = duration / 60)) +
   geom_rug() +
   theme_minimal() +
   ylim(0, 5) +
@@ -396,7 +396,7 @@ variable1 <- oldvsnew %>%
     alpha = "Volume (dBFS)"
   ) + scale_color_manual(values=c(blue, yellow, pink, red))
 
-ggplotly(variable1)
+variable1
 ```
 
 
