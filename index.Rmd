@@ -15,7 +15,29 @@ library(ggplot2)
 library(plotly)
 library(flexdashboard)
 library(compmus)
+get_conf_mat <- function(fit) {
+  outcome <- .get_tune_outcome_names(fit)
+  fit %>% 
+    collect_predictions() %>% 
+    conf_mat(truth = outcome, estimate = .pred_class)
+}  
+
+get_pr <- function(fit) {
+  fit %>% 
+    conf_mat_resampled() %>% 
+    group_by(Prediction) %>% mutate(precision = Freq / sum(Freq)) %>% 
+    group_by(Truth) %>% mutate(recall = Freq / sum(Freq)) %>% 
+    ungroup() %>% filter(Prediction == Truth) %>% 
+    select(class = Prediction, precision, recall)
+}  
 library(gridExtra)
+library(tidymodels)
+library(ggdendro)
+library(protoclust)
+library(heatmaply)
+library(kknn)
+library(c2c)
+library(ranger)
 ```
 
 ```{r, echo = FALSE, include=FALSE}
@@ -44,36 +66,173 @@ Albums$category = factor(Albums$category, levels=c('Dangerously In Love', 'B-Day
 ```
 
 
-### **Tempograms** of *Hip Hop Star* and *Heaven*.The tempo of *Hip Hop Star* appears very **constant**, while *Heaven* has much *inconsistency**. 
+### Ranking Beyoncé's songs on feature importance. **Timbre coefficient c02** stands out. 
 
-```{r, cache = TRUE} 
-HipHopStar <- get_tidy_audio_analysis("5cl6rJmigUbx6cNrA3nV8z")
+```{r, echo = FALSE, include=FALSE}
+Old <- 
+  get_playlist_audio_features("spotify", "6c3Kr7i2ZJQy6P6V5FzPJE")
+New <- get_playlist_audio_features("spotify", "5SZjOwCqCjYJVlTCLXO394")
+Bmusic <-
+  bind_rows(
+    Old %>% mutate(playlist = "Old") %>% slice_head(n = 72),
+    New %>% mutate(playlist = "New") %>% slice_head(n = 50)
+  ) 
+```
 
-HipHopStar1 <- HipHopStar %>%
-  tempogram(window_size = 8, hop_size = 1, cyclic = TRUE) %>%
-  ggplot(aes(x = time, y = bpm, fill = power)) +
-  geom_raster() +
-  scale_fill_viridis_c(guide = "none") +
-  labs(title = "Song: Hip Hop Star", x = "Time (s)", y = "Tempo (BPM)") +
-  theme_classic()
+```{r, echo = FALSE, include=FALSE}
+Bmusic_features <-
+  Bmusic %>%  # For your portfolio, change this to the name of your corpus.
+  add_audio_analysis() %>% 
+  mutate(
+    playlist = factor(playlist),
+    segments = map2(segments, key, compmus_c_transpose),
+    pitches =
+      map(
+        segments,
+        compmus_summarise, pitches,
+        method = "mean", norm = "manhattan"
+      ),
+    timbre =
+      map(
+        segments,
+        compmus_summarise, timbre,
+        method = "mean",
+      )
+  ) %>%
+  mutate(pitches = map(pitches, compmus_normalise, "clr")) %>%
+  mutate_at(vars(pitches, timbre), map, bind_rows) %>%
+  unnest(cols = c(pitches, timbre))
+```
 
-Heaven <- get_tidy_audio_analysis("0fYwfZcgijhIOyXn0RVPwq")
+```{r, echo = FALSE, include=FALSE}
+Bmusic_recipe <-
+  recipe(
+    playlist ~
+      danceability +
+      energy +
+      loudness +
+      speechiness +
+      acousticness +
+      instrumentalness +
+      liveness +
+      valence +
+      tempo +
+      duration +
+      C + `C#|Db` + D + `D#|Eb` +
+      E + `F` + `F#|Gb` + G +
+      `G#|Ab` + A + `A#|Bb` + B +
+      c01 + c02 + c03 + c04 + c05 + c06 +
+      c07 + c08 + c09 + c10 + c11 + c12,
+    data = Bmusic_features,          # Use the same name as the previous block.
+  ) %>%
+  step_center(all_predictors()) %>%
+  step_scale(all_predictors())      # Converts to z-scores.
+  # step_range(all_predictors())    # Sets range to [0, 1].
+```
 
-Heaven1 <- Heaven %>%
-  tempogram(window_size = 8, hop_size = 1, cyclic = TRUE) %>%
-  ggplot(aes(x = time, y = bpm, fill = power)) +
-  geom_raster() +
-  scale_fill_viridis_c(guide = "none") +
-  labs(title = "Song: Heaven", x = "Time (s)", y = "Tempo (BPM)") +
-  theme_classic()
+```{r, echo = FALSE, include=FALSE}
+Bmusic_cv <- Bmusic_features %>% vfold_cv(5)
+```
 
-grid.arrange(HipHopStar1, Heaven1, nrow = 1)
+```{r, echo = FALSE, include=FALSE}
+knn_model <-
+  nearest_neighbor(neighbors = 1) %>%
+  set_mode("classification") %>% 
+  set_engine("kknn")
+Bmusic_knn <- 
+  workflow() %>% 
+  add_recipe(Bmusic_recipe) %>% 
+  add_model(knn_model) %>% 
+  fit_resamples(
+    Bmusic_cv, 
+    control = control_resamples(save_pred = TRUE)
+  )
+```
+
+
+```{r, echo = FALSE, include=FALSE}
+forest_model <-
+  rand_forest() %>%
+  set_mode("classification") %>% 
+  set_engine("ranger", importance = "impurity")
+Bmusic_forest <- 
+  workflow() %>% 
+  add_recipe(Bmusic_recipe) %>% 
+  add_model(forest_model) %>% 
+  fit_resamples(
+    Bmusic_cv, 
+    control = control_resamples(save_pred = TRUE)
+  )
+```
+
+```{r, echo = FALSE, include=FALSE}
+Bmusic_forest %>% get_pr()
+```
+
+```{r}
+workflow() %>% 
+  add_recipe(Bmusic_recipe) %>% 
+  add_model(forest_model) %>% 
+  fit(Bmusic_features) %>% 
+  pluck("fit", "fit", "fit") %>%
+  ranger::importance() %>% 
+  enframe() %>% 
+  mutate(name = fct_reorder(name, value)) %>% 
+  ggplot(aes(name, value)) + 
+  geom_col() + 
+  coord_flip() +
+  theme_minimal() +
+  labs(title = "Random Forest", x = NULL, y = "Importance")
 ```
 
 ***
-* As we've seen in the graph of two storyboards back, the album *Beyoncé* seems to have a different pattern in tempo compared to the albums *Dangerously In Love*, *B-Day Deluxe Edition*, and *Lemonade*. Therefore, I'd like to **compare** the **tempograms** of a song from *Beyoncé* with a song from one of the other three albums. 
-* I've chosen to compare *Hip Hop Star* from *Dangerously In Love* with *Heaven* from *Beyoncé*, since *Hip Hop Star* has extremely high valence and energy and a low acousticness and *Heaven* an extremely low valence and energy and a high acousticness (they have the highest and lowest valence in this corpus, which can be seen in the **features scatterplot** from a few storyboards back). 
-* As can be seen, the tempo of *Hip Hop Star* is **constant** around 82 bpm, while *Heaven* has a more **'noisy' tempo**. I think this has to do with the difference in acousticness. Since *Heaven* is almost 100% acoustic, it could be harder to determine the exact tempo.
+* In this graph, you can see that **timbre coefficient c02** stands out as the most important feature. This is remarkable, because c02 has shown to be the most different timbre coefficient between the albums, as you could have seen on the preceding page about timbre coefficients. Maybe this also indicates why this feature is so important in Beyoncé's music. 
+
+### K-Nearest Neighbour with **timbre coefficient c02**, algorithm can make a fair prediction on Beyoncé's older and newer music based on this coefficient. 
+
+```{r, echo = FALSE, include=FALSE}
+Bmusic_recipe <-
+  recipe(
+    playlist ~
+      c02,
+    data = Bmusic_features,          # Use the same name as the previous block.
+  ) %>%
+  step_center(all_predictors()) %>%
+  step_scale(all_predictors())      # Converts to z-scores.
+  # step_range(all_predictors())    # Sets range to [0, 1].
+```
+
+```{r, echo = FALSE, include=FALSE}
+Bmusic_cv <- Bmusic_features %>% vfold_cv(5)
+```
+
+```{r, echo = FALSE, include=FALSE}
+knn_model <-
+  nearest_neighbor(neighbors = 1) %>%
+  set_mode("classification") %>% 
+  set_engine("kknn")
+Bmusic_knn <- 
+  workflow() %>% 
+  add_recipe(Bmusic_recipe) %>% 
+  add_model(knn_model) %>% 
+  fit_resamples(
+    Bmusic_cv, 
+    control = control_resamples(save_pred = TRUE)
+  )
+```
+
+```{r, echo = FALSE, include=FALSE}
+Bmusic_knn %>% get_conf_mat()
+```
+
+```{r}
+Bmusic_knn %>% get_conf_mat() %>% autoplot(type = "heatmap")
+```
+
+***
+* Here, Beyoncé's albums and the accompanying songs are divided in two groups, namely **old** (her first four albums, untill *Beyoncé*) and **new** (her last three albums). The algorithm has made predictions about the distribution of the songs in the two groups based on the feature c02 (since this feature stood out in the graphs of the preceding pages).
+* As can be seen, the predictions are relatively neat. Most of the songs from both "old" and "new" are well predicted, which could means that both groups have a certain **recurring c02** which can be **recognized** by the algorithm.
+* So with the last three graphs, We have seen that c02 has decreased drastically over time, that it is the most important feature of Beyoncé's songs, and that a lot of her songs can be classified into older and newer songs. 
 
 
 ### Beyoncé's **discography**, and how has her music **changed** over time? 
@@ -87,41 +246,10 @@ Nowadays, Beyoncé is one of my favorite artists. One of the reasons I like to l
 * *Lemonade* (2016)
 * *The Lion King* (2019)
 
-On extravagant moments I like to listen to *4*, if I want to listen to old pop classics like Halo, I put on *I Am Sacha Fierce*, and when I'm not feeling well I listen to *Lemonade* for a boost of self-confidence and some great hiphop-beats. Because I like Beyoncé's diversity in styles and genres between and in her albums, I will research with the SpotifyR features how her music has developed over the seven albums I've mentioned above. I personally notice a number of differences between her albums, for example that her newer albums contain less acoustic songs and that the overall vibe is less positive. Therefore, I'm going to research the acousticness and valence of her albums. I'm expecting them to have shifted downwards after the release of her album *Beyoncé*, because this album is known for having a different style compared to Beyoncé's earlier albums. In addition, I'm interested in the danceability, energy, and speechiness of her albums. However, I think these features are very high for all her albums, and that no major differences will be seen. Let's see if this assumption is correct! 
+On extravagant moments I like to listen to *4*, if I want to listen to old pop classics like Halo, I put on *I Am Sacha Fierce*, and when I'm not feeling well I listen to *Lemonade* for a boost of self-confidence and great hiphop-beats. Because I like Beyoncé's diversity in styles and genres between and in her albums, I will research with the SpotifyR features how her music has developed over the seven albums I've mentioned above. I personally notice a number of differences between her albums, for example that her newer albums contain less acoustic songs and that the overall vibe is less positive. Therefore, I'm going to research the acousticness and valence of her albums. I'm expecting them to have shifted downwards after the release of her album *Beyoncé*, because this album is known for having a different style compared to Beyoncé's earlier albums (it's been said a lot that her later albums contained a different, lower end hip hop bass). In addition, I'm interested in the danceability, energy, and speechiness of her albums. However, I think these features are very high for all her albums, and that no major differences will be seen. Let's see if this assumption is correct! 
  
 
-Furthermore, I would like to dive deeper in Beyoncé's work by visualizing the specific key changes in the song *Love On Top*, since this song is well known for having "definitively the greatest key changes in all pop music". Following this I am also curious in the key variation of Beyoncé's songs and albums, so I will take a look at that as well.
-
-
-### Albums show a **high diversity in character**. A **shift** in **valence** and **acousticness** over time.
-
-```{r, echo = FALSE}
-VaEnAcDa <- ggplot(Albums, aes(x = valence, y = energy, color = acousticness, size = danceability, text=(paste("Track:", track.name, "<br>", 
-            "Energy:", energy, "<br>",
-            "Valence:", valence, "<br>",
-            "Acousticness:", acousticness, "<br>",
-            "Danceability:", danceability, "<br>")))) +
-  geom_point(alpha = 0.5, size = 2) +
-  geom_jitter(alpha = 0.5, width = 0.1) +
-  facet_wrap(~category) +
-  scale_color_gradient(low = "light blue", high = "black") +
-  ggtitle('Beyoncé: Different Albums (In Chronological Order)') +
-  xlab("Valence") + ylab("Energy")
-
-f_labels <- data.frame(category = c('Dangerously In Love', 'B-Day Deluxe Edition', 'I Am Sacha Fierce', '4', 'Beyoncé', 'Lemonade', 'The Lion King'), label = c('Hip Hop Star', '', '', '', 'Heaven', '', ''),x = c(0.971,0,0,0,0.0388,0,0), y = c(0.651,0,0,0,0.188,0,0)) 
-
-VaEnAcDa + geom_text(data = f_labels, aes(x = x, y = y,label = label), inherit.aes = FALSE)
-
- 
-
-ggplotly(VaEnAcDa, tooltip=c("text"))
-```
-
-***
-* In these graphs, energy, valence, acousticness, and danceability are shown of Beyoncé's albums.
-* Overall, the scatterplots show that the the songs of every album show a variety in values of energy, valence, acousticness and danceability. This shows that her albums are **not static**, but that the the albums have **a high diversity in character**. 
-* Furthermore, the overall **valence level** of her albums has **shifted downwards** after the release of *Beyoncé*. Before *Beyoncé*, valence values of her songs were never even close to zero, whereas her last three albums contain more **lower-valued valence songs**. 
-* Besides, **acousticness** has **increased** a bit in her last two albums, with values above 0.9. This was only seen once in her album *Dangerously In Love*, but not again untill *Lemonade* and *The Lion King*. 
+Furthermore, I am curious in the key variation of Beyoncé's songs and albums, so I will take a look at that. Specifically, I will dive deeper in Beyoncé's work by visualizing the specific key changes in the song *Love On Top*, since this song is well known for having "definitively the greatest key changes in all pop music".
 
 
 ### Albums show a **high diversity in character**. A **shift** in **valence** and **acousticness** over time.
@@ -130,14 +258,14 @@ ggplotly(VaEnAcDa, tooltip=c("text"))
 VaEnAcDa <- ggplot(Albums, aes(x = valence, y = energy, color = acousticness, size = danceability)) +
   geom_point(alpha = 0.5, size = 2) +
   geom_jitter(alpha = 0.5, width = 0.1) +
-  facet_wrap(~category) +
+  facet_wrap(.~category) +
   scale_color_gradient(low = "light blue", high = "black") +
   ggtitle('Beyoncé: Different Albums (In Chronological Order)') +
   xlab("Valence") + ylab("Energy") 
 
-f_labels <- data.frame(category = c('Dangerously In Love', 'B-Day Deluxe Edition', 'I Am Sacha Fierce', '4', 'Beyoncé', 'Lemonade', 'The Lion King'), label = c('Hip Hop Star', '', '', '', 'Heaven', '', ''),x = c(0.971,0,0,0,0.0388,0,0), y = c(0.651,0,0,0,0.188,0,0)) 
+f_labels <- data.frame(category = factor(c('Dangerously In Love', 'B-Day Deluxe Edition', 'I Am Sacha Fierce', '4', 'Beyoncé', 'Lemonade', 'The Lion King')), label = c('Hip Hop Star', '', '', '', 'Heaven', '', ''),x = c(0.9,0,0,0,0.0388,0,0), y = c(0.651,0,0,0,0.188,0,0)) 
 
-VaEnAcDa + geom_text(data = f_labels, aes(x = x, y = y,label = label), size = 1.05, inherit.aes = FALSE)
+VaEnAcDa + geom_text(data = f_labels, aes(x = x, y = y,label = label), size = 1.3, inherit.aes = FALSE)
 
 ```
 
@@ -146,6 +274,7 @@ VaEnAcDa + geom_text(data = f_labels, aes(x = x, y = y,label = label), size = 1.
 * Overall, the scatterplots show that the the songs of every album show a variety in values of energy, valence, acousticness and danceability. This shows that her albums are **not static**, but that the the albums have **a high diversity in character**. 
 * Furthermore, the overall **valence level** of her albums has **shifted downwards** after the release of *Beyoncé*. Before *Beyoncé*, valence values of her songs were never even close to zero, whereas her last three albums contain more **lower-valued valence songs**. 
 * Besides, **acousticness** has **increased** a bit in her last two albums, with values above 0.9. This was only seen once in her album *Dangerously In Love*, but not again untill *Lemonade* and *The Lion King*. 
+* Two songs, *Hip Hop Star* and *Heaven*, have been labelled because they'll come back in a later graph. 
 
 
 ### No clear changes in **speechiness**, so this feature has been **constant** in Beyoncé's music. 
@@ -186,7 +315,7 @@ ggplotly(Speechness, tooltip=c("text"))
 ```
 
 ***
-* In these graphs, the speechiness is shown of Beyoncé's albums. 
+* In these graphs, the speechiness is shown of Beyoncé's albums. Unfortunately, ggplotly removes the y-axis label, but the label *speechiness* should be there. 
 * Overall, the **speechiness** of Beyoncé's albums is more on the lower side, showing a lot of songs with **speechiness-values below 0.1**. According to Spotify API, this means that her albums contain mostly **non-speech-like songs** (songs < 0.33).  However, this is not what I personally experience when I listen to Beyoncé's music. Therefore, I'm not sure what to conclude from this graph.
 
 
@@ -405,10 +534,40 @@ variable1
 * The album *Beyoncé* seems to be different in tempo than the other albums. It's kind of funny to see that *Beyoncé* has a lot of songs (seven of the fourteen songs) around a **mean tempo of 140 bpm**, whereas the songs of the other albums are more **spread out**.
 
 
+### **Tempograms** of *Hip Hop Star* and *Heaven*.The tempo of *Hip Hop Star* appears very **constant**, while *Heaven* has much *inconsistency**. 
 
-### Albums show major **difference** in **timbre coefficient 2**. 
+```{r, cache = TRUE} 
+HipHopStar <- get_tidy_audio_analysis("5cl6rJmigUbx6cNrA3nV8z")
 
-```{r, echo = FALSE}
+HipHopStar1 <- HipHopStar %>%
+  tempogram(window_size = 8, hop_size = 1, cyclic = TRUE) %>%
+  ggplot(aes(x = time, y = bpm, fill = power)) +
+  geom_raster() +
+  scale_fill_viridis_c(guide = "none") +
+  labs(title = "Song: Hip Hop Star", x = "Time (s)", y = "Tempo (BPM)") +
+  theme_classic()
+
+Heaven <- get_tidy_audio_analysis("0fYwfZcgijhIOyXn0RVPwq")
+
+Heaven1 <- Heaven %>%
+  tempogram(window_size = 8, hop_size = 1, cyclic = TRUE) %>%
+  ggplot(aes(x = time, y = bpm, fill = power)) +
+  geom_raster() +
+  scale_fill_viridis_c(guide = "none") +
+  labs(title = "Song: Heaven", x = "Time (s)", y = "Tempo (BPM)") +
+  theme_classic()
+
+grid.arrange(HipHopStar1, Heaven1, nrow = 1)
+```
+
+***
+* As we've seen in the graph of the preceding page, the album *Beyoncé* seems to have a different pattern in tempo compared to the albums *Dangerously In Love*, *B-Day Deluxe Edition*, and *Lemonade*. Therefore, I'd like to **compare** the **tempograms** of a song from *Beyoncé* with a song from one of the other three albums. 
+* I've chosen to compare *Hip Hop Star* from *Dangerously In Love* with *Heaven* from *Beyoncé*, since *Hip Hop Star* has extremely high valence and energy and a low acousticness and *Heaven* an extremely low valence and energy and a high acousticness (they have the highest and lowest valence in this corpus, which can be seen in the **features scatterplot** from a few storyboards back). 
+* As can be seen, the tempo of *Hip Hop Star* is **constant** around 82 bpm, while *Heaven* has a more **'noisy' tempo**. I think this has to do with the difference in acousticness. Since *Heaven* is almost 100% acoustic, it could be harder to determine the exact tempo.
+
+### Albums show major **difference** in **timbre coefficient c02**. 
+
+```{r, echo = FALSE, cache = TRUE}
 
 variable2 <- oldvsnew %>%
   mutate(
@@ -436,4 +595,5 @@ ggplotly(variable2)
 
 ***
 * In this graph, the difference in **timbre coefficients** between four of Beyoncé's albums can be seen.
-* I know this graph is a bit intense to take in, and I initially wanted to take out two albums because it's so crowded, but I'm curious about the situation at y = **c02**. You can see **major differences** in this coefficient between the four albums. I would like to know what this coefficient actually means in the timbre, but I haven't found out so far. 
+* I know this graph is a bit intense to take in, and I initially wanted to take out two albums because it's so crowded, but the situation at x = **c02** is too interesting to leave out some albums. You can see **major differences** in the co2 coefficient between the four albums. The c02 describes lower frequencies, which means that in the later albums, there is more emphasized on the lower end (hip hop) bass. The hip hop 808 bass harmonics and tone is very important in Beyoncé's music production and mixing, so apparently the use of the lower end bass has increased over the years. 
+* Besides c03, the violin plots of the coefficients are very compact and constant between the four albums, so not significant changes over time. 
