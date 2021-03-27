@@ -91,7 +91,7 @@ On extravagant moments I like to listen to *4*, if I want to listen to old pop c
 Furthermore, I am curious in the key variation of Beyoncé's songs and albums, so I will take a look at that. Specifically, I will dive deeper in Beyoncé's work by visualizing the specific key changes in the song *Love On Top*, since this song is well known for having "definitively the greatest key changes in all pop music".
 
 
-**Features** {.storyboard} 
+**Spotify Features** {.storyboard} 
 =============================================================
 
 ### Albums show a **high diversity in character**. A **shift** in **valence** and **acousticness** over time.
@@ -255,15 +255,30 @@ bind_rows(
   facet_wrap(~type) +
   theme_classic() +
   scale_fill_viridis_c() +
-  labs(title = "Song: Love On Top", x = "", y = "")
+  labs(title = "Song: Love On Top", x = "", y = "") +
+  geom_vline(xintercept = 20, color = "white", linetype = "dotted", size = 1) +
+  geom_vline(xintercept = 60, color = "white", linetype = "dotted", size = 1) +
+  geom_vline(xintercept = 101, color = "white", linetype = "dotted", size = 1) +
+  geom_vline(xintercept = 141, color = "white", linetype = "dotted", size = 1) +
+  geom_vline(xintercept = 183, color = "white", linetype = "dotted", size = 1) +
+  geom_vline(xintercept = 204, color = "white", linetype = "dotted", size = 1) +
+  geom_vline(xintercept = 224, color = "white", linetype = "dotted", size = 1) +
+  geom_vline(xintercept = 245, color = "white", linetype = "dotted", size = 1) +
+  
+  geom_label(label = "I", x = 1, y = 1, color = "white") +
+  geom_label(label = "V", x = 20, y = 1, color = "white") +
+  geom_label(label = "C", x = 60, y = 1, color = "white") +
+  geom_label(label = "V", x = 101, y = 1, color = "white") +
+  geom_label(label = "C", x = 141, y = 1, color = "white") +
+  geom_label(label = "4xC", x = 183, y = 1, color = "white")
 ```
 
 ***
-As I already explained in the introduction, I'm interested in the key changes of the song *Love On Top*, because this song is very well-known for it. Therefore, I will take a look at the chroma and timbre features.
+As I already explained in the introduction, I'm interested in the key changes of the song *Love On Top*, because this song is very well-known for it. Therefore, I will take a look at the chroma and timbre features.In the two self-similarity matrices (SSMs) you can see **chroma** as well as **timbre** features of the song *Love On Top*. Left, you see the chroma features, which show the **harmonic and melodic characteristics**. On the right, the timbre features are shown, which show the changes in **timbre and instrumentation**. 
 
-* In the two self-similarity matrices (SSMs) you can see **chroma** as well as **timbre** features of the song *Love On Top*. Left, you see the chroma features, which show the **harmonic and melodic characteristics**. Right, the timbre features are shown, which show the changes in **timbre and instrumentation**. 
-* In the chroma SSM, the dark diagonal lines from 0 to 180 seconds show **repetition in pitches**. The diagonal lines disappear after approximately 180 seconds. I think this happens because in the last two minutes of the song, the chorus is repeated and goes through **four key changes**, starting in C major and proceeding to Db major, then to D major, Eb major, and finally to E major. 
-* In the timbre SSM, I can't really see any patterns. I think there's mostly an **similar timbre** throughout the song (even instrumentation and beat, and a verse-chorus form with different vocals).
+* I've divided the song into an **intro** (I), 2x **verse** (V) and **chorus** (C), and 4x the **first part of the chorus** in the end (4xC). 
+* In the chroma SSM, the dark diagonal lines from 0 to 180 seconds show **repetition in pitches**. The diagonal lines disappear after approximately 180 seconds. I think this happens because in the last two minutes of the song, the chorus is repeated and goes through **four key changes** (hence, the 4xC) I'll explain this in more detail with a chromagram on the next storyboard.
+* In the timbre SSM, you mostly see a **similar pattern**, since the song mostly consists of the chorus (2x a complete chorus, 4x part of the chorus). The intro and verses have a little diversion in color, but that's not so weird since there is different pattern of vocals and instrumentation. 
 
 
 ### **Chromagram** of *Love On Top*. Here, the **modulations** are shown more clearly. 
@@ -395,7 +410,7 @@ In this graph, I've compared the variables **tempo**, **loudness** and **duratio
 The album *Beyoncé* seems to be different in tempo than the other albums. It's kind of funny to see that *Beyoncé* has a lot of songs (seven of the fourteen songs) around a **mean tempo of 140 bpm**, whereas the songs of the other albums are more **spread out**.
 
 
-### **Tempograms** of *Hip Hop Star* and *Heaven*.The tempo of *Hip Hop Star* appears very **constant**, while *Heaven* has much **inconsistency**. 
+### The **constant tempo** of *Hip Hop Star*, and...
 
 ```{r, cache = TRUE} 
 HipHopStar <- get_tidy_audio_analysis("5cl6rJmigUbx6cNrA3nV8z")
@@ -408,6 +423,18 @@ HipHopStar1 <- HipHopStar %>%
   labs(title = "Song: Hip Hop Star", x = "Time (s)", y = "Tempo (BPM)") +
   theme_classic()
 
+HipHopStar1
+```
+
+***
+As we've seen in the graph of the preceding page, the album *Beyoncé* seems to have a different pattern in tempo compared to the albums *Dangerously In Love*, *B-Day Deluxe Edition*, and *Lemonade*. Therefore, I'd like to **compare** the **tempograms** of a song from *Beyoncé* with a song from one of the other three albums. 
+
+* I've chosen to compare *Hip Hop Star* from *Dangerously In Love* with *Heaven* from *Beyoncé* (*see next storyboard*), since *Hip Hop Star* has extremely high valence and energy and a low acousticness and *Heaven* an extremely low valence and energy and a high acousticness (they have the highest and lowest valence in this corpus, which can be seen in the **features scatterplot** from a few storyboards back). 
+* As can be seen, the tempo of *Hip Hop Star* is **constant** around 82 bpm. This song has a very stable drumbeat throughout the song with no diversions. 
+
+### the **'inconsistent' tempo** of *Heaven*.
+
+```{r, cache = TRUE}
 Heaven <- get_tidy_audio_analysis("0fYwfZcgijhIOyXn0RVPwq")
 
 Heaven1 <- Heaven %>%
@@ -418,14 +445,11 @@ Heaven1 <- Heaven %>%
   labs(title = "Song: Heaven", x = "Time (s)", y = "Tempo (BPM)") +
   theme_classic()
 
-grid.arrange(HipHopStar1, Heaven1, nrow = 1)
+Heaven1
 ```
 
 ***
-As we've seen in the graph of the preceding page, the album *Beyoncé* seems to have a different pattern in tempo compared to the albums *Dangerously In Love*, *B-Day Deluxe Edition*, and *Lemonade*. Therefore, I'd like to **compare** the **tempograms** of a song from *Beyoncé* with a song from one of the other three albums. 
-
-* I've chosen to compare *Hip Hop Star* from *Dangerously In Love* with *Heaven* from *Beyoncé*, since *Hip Hop Star* has extremely high valence and energy and a low acousticness and *Heaven* an extremely low valence and energy and a high acousticness (they have the highest and lowest valence in this corpus, which can be seen in the **features scatterplot** from a few storyboards back). 
-* As can be seen, the tempo of *Hip Hop Star* is **constant** around 82 bpm, while *Heaven* has a more **'noisy' tempo**. I think this has to do with the difference in acousticness. Since *Heaven* is almost 100% acoustic, it could be harder to determine the exact tempo.
+*Heaven* has a more **'noisy'tempo**. I think this has to do with the acousticness. Since *Heaven* is almost 100% acoustic and doesn't have such a stable beat as *Hip Hop Star*, it could be harder to determine the exact tempo.
 
 
 **Timbre** {.storyboard}
@@ -586,9 +610,10 @@ workflow() %>%
 ```
 
 ***
-In this graph, you can see that **timbre coefficient c02** stands out as the most important feature. This is remarkable, because c02 has shown to be the most different timbre coefficient between the albums, as you could have seen on the preceding page about timbre coefficients. Maybe this also indicates why this feature is so important in Beyoncé's music. 
+In this graph, you can see that **timbre coefficient c02** stands out as the most important feature. This is remarkable, because c02 has shown to be the most different timbre coefficient between the albums, as you could have seen on the *preceding storyboard* about timbre coefficients. Maybe this also indicates why this feature is so important in Beyoncé's music. 
 
-### K-Nearest Neighbour with **timbre coefficient c02**, algorithm can make a fair prediction on Beyoncé's older and newer music based on this coefficient. 
+
+### Predictability of Beyoné's albums with **timbre coefficient c02**. Algorithm can make a fair prediction on Beyoncé's older and newer music based on this coefficient. {data-commentary-width=500}
 
 ```{r, echo = FALSE, include=FALSE}
 Bmusic_recipe <-
@@ -630,10 +655,79 @@ Bmusic_knn %>% get_conf_mat() %>% autoplot(type = "heatmap")
 ```
 
 ***
-Here, Beyoncé's albums and the accompanying songs are divided in two groups, namely **old** (her first four albums, untill *Beyoncé*) and **new** (her last three albums). The algorithm has made predictions about the distribution of the songs in the two groups based on the feature c02 (since this feature stood out in the graphs of the preceding pages).
+Here, Beyoncé's albums and the accompanying songs are divided in two groups, namely **old** (her first four albums, untill *Beyoncé*) and **new** (her last three albums). The algorithm has made predictions about the distribution of the songs in the two groups based on the feature c02 (since this feature stood out in the graphs of the *preceding storyboards*).
 
 * As can be seen, the predictions are relatively neat. Most of the songs from both "old" and "new" are well predicted, which could means that both groups have a certain **recurring c02** which can be **recognized** by the algorithm.
 * So with the last three graphs, We have seen that c02 has decreased drastically over time, that it is the most important feature of Beyoncé's songs, and that a lot of her songs can be classified into older and newer songs. 
+* The **precision** and **recall** are both very high as you can see in the table below, which makes the predictions more reliable. 
+
+```{r}
+Bmusic_knn %>% get_pr()
+```
+
+
+### And another predictability model of Beyoncé's albums, but then with **all the features** included to see the contrast with the previous predictability model. {data-commentary-width=500}
+
+```{r}
+Bmusic_recipe <-
+  recipe(
+    playlist ~
+      danceability +
+      energy +
+      loudness +
+      speechiness +
+      acousticness +
+      instrumentalness +
+      liveness +
+      valence +
+      tempo +
+      duration +
+      C + `C#|Db` + D + `D#|Eb` +
+      E + `F` + `F#|Gb` + G +
+      `G#|Ab` + A + `A#|Bb` + B +
+      c01 + c02 + c03 + c04 + c05 + c06 +
+      c07 + c08 + c09 + c10 + c11 + c12,
+    data = Bmusic_features,          # Use the same name as the previous block.
+  ) %>%
+  step_center(all_predictors()) %>%
+  step_scale(all_predictors())      # Converts to z-scores.
+  # step_range(all_predictors())    # Sets range to [0, 1].
+
+```
+
+```{r, echo = FALSE, include=FALSE}
+Bmusic_cv <- Bmusic_features %>% vfold_cv(5)
+```
+
+```{r, echo = FALSE, include=FALSE}
+knn_model <-
+  nearest_neighbor(neighbors = 1) %>%
+  set_mode("classification") %>% 
+  set_engine("kknn")
+Bmusic_knn <- 
+  workflow() %>% 
+  add_recipe(Bmusic_recipe) %>% 
+  add_model(knn_model) %>% 
+  fit_resamples(
+    Bmusic_cv, 
+    control = control_resamples(save_pred = TRUE)
+  )
+```
+
+```{r, echo = FALSE, include=FALSE}
+Bmusic_knn %>% get_conf_mat()
+```
+
+```{r}
+Bmusic_knn %>% get_conf_mat() %>% autoplot(type = "heatmap")
+```
+
+***
+There's only a **small difference** between the predictions of the older songs, so this means that timbre coefficient c02 is a big factor in the predictions. Precision and recall are a bit higher compared to the previous model.
+
+```{r}
+Bmusic_knn %>% get_pr()
+```
 
 
 **Conclusion** {.storyboard} 
@@ -650,6 +744,6 @@ The main things I've learned about Beyoncé's music is that:
 * Beyoncé doesn't stick to a few keys, but she varies a lot between her albums and songs;
 * And not only between songs, but also within songs: *Love On Top* modulates no less than 4 times, which makes this song very unique;
 * The album *Beyoncé* shows a lot of similarity in tempo;
-* Timbre feature c02 stands out in Beyoncé music and has decreased in value over time, which means lower frequencies like bass have become more prominent and that this can define Beyoncé's music to a high degree. 
+* Timbre feature c02 stands out in Beyoncé's music and has decreased in value over time, which means lower frequencies like bass have become more prominent and that this can define Beyoncé's music to a high degree (specifically the 808 bass). 
 
-It's impressing how much I've learned about Beyoncé's music only in a few weeks time by Spotify API, and therefore I'm very excited and curious what the future will bring, because I'm sure I'll use this again in the future for very interesting new researches. 
+It's impressing how much I've learned about Beyoncé's music only in a few weeks time by Spotify API, and therefore I'm very excited and curious what the future will bring, because I'm sure I'll use this again for interesting and new musical researches. 
