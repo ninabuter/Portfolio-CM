@@ -210,7 +210,7 @@ After I created this graph, purely out of interest in the keys she uses for her 
 ***Love On Top*** {.storyboard}
 ===============================================================
 
-### Structure of *Love On Top*. **Timbre** and **pitch** features shown in **self-similarity matrix**. 
+### Structure of *Love On Top*. **Timbre** and **pitch** features shown in **self-similarity matrix**. {data-commentary-width=500}
 
 ```{r, echo=FALSE, cache= TRUE}
 LoveOnTop <-
@@ -275,6 +275,12 @@ bind_rows(
 
 ***
 As I already explained in the introduction, I'm interested in the key changes of the song *Love On Top*, because this song is very well-known for it. Therefore, I will take a look at the chroma and timbre features.In the two self-similarity matrices (SSMs) you can see **chroma** as well as **timbre** features of the song *Love On Top*. Left, you see the chroma features, which show the **harmonic and melodic characteristics**. On the right, the timbre features are shown, which show the changes in **timbre and instrumentation**. 
+
+```{=html}
+<object data="https://open.spotify.com/embed/track/1z6WtY7X4HQJvzxC4UgkSf" width="280" height="140">
+    <embed src="https://open.spotify.com/embed/track/1z6WtY7X4HQJvzxC4UgkSf" width="280" height="140"></embed>
+</object>
+```
 
 * I've divided the song into an **intro** (I), 2x **verse** (V) and **chorus** (C), and 4x the **first part of the chorus** in the end (4xC). 
 * In the chroma SSM, the dark diagonal lines from 0 to 180 seconds show **repetition in pitches**. The diagonal lines disappear after approximately 180 seconds. I think this happens because in the last two minutes of the song, the chorus is repeated and goes through **four key changes** (hence, the 4xC) I'll explain this in more detail with a chromagram on the next storyboard.
@@ -606,14 +612,14 @@ workflow() %>%
   geom_col() + 
   coord_flip() +
   theme_minimal() +
-  labs(title = "Prediction Model For Beyoncé's Musical Features", x = NULL, y = "Importance")
+  labs(title = "Ranking List Of Beyoncé's Most Important Musical Features", x = NULL, y = "Importance")
 ```
 
 ***
 In this graph, you can see that **timbre coefficient c02** stands out as the most important feature. This is remarkable, because c02 has shown to be the most different timbre coefficient between the albums, as you could have seen on the *preceding storyboard* about timbre coefficients. Maybe this also indicates why this feature is so important in Beyoncé's music. 
 
 
-### Predictability of Beyoné's albums with **timbre coefficient c02**. Algorithm can make a fair prediction on Beyoncé's older and newer music based on this coefficient. {data-commentary-width=500}
+### Predictability model of Beyoné's albums with **timbre coefficient c02**. Algorithm can make a fair prediction on Beyoncé's older and newer music based on this coefficient. {data-commentary-width=500}
 
 ```{r, echo = FALSE, include=FALSE}
 Bmusic_recipe <-
