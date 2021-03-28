@@ -85,11 +85,13 @@ Nowadays, Beyoncé is one of my favorite artists. One of the reasons I like to l
 * *Lemonade* (2016)
 * *The Lion King* (2019)
 
-On extravagant moments I like to listen to *4*, if I want to listen to old pop classics like Halo, I put on *I Am Sacha Fierce*, and when I'm not feeling well I listen to *Lemonade* for a boost of self-confidence and great hiphop-beats. Because I like Beyoncé's diversity in styles and genres between and in her albums, I will research with the SpotifyR features how her music has developed over the seven albums I've mentioned above. I personally notice a number of differences between her albums, for example that her newer albums contain less acoustic songs and that the overall vibe is less positive. Therefore, I'm going to research the acousticness and valence of her albums. I'm expecting them to have shifted downwards after the release of her album *Beyoncé*, because this album is known for having a different style compared to Beyoncé's earlier albums (it's been said a lot that her later albums contained a different, lower end hip hop bass). In addition, I'm interested in the danceability, energy, and speechiness of her albums. However, I think these features are very high for all her albums, and that no major differences will be seen. Let's see if this assumption is correct! 
- 
+Because I like Beyoncé's diversity in styles and genres between and in her albums, I would like to find out with the SpotifyR API features more about Beyoncé's music and how her music has changed over time. I will do this by analyzing:
 
-Furthermore, I am curious in the key variation of Beyoncé's songs and albums, so I will take a look at that. Specifically, I will dive deeper in Beyoncé's work by visualizing the specific key changes in the song *Love On Top*, since this song is well known for having "definitively the greatest key changes in all pop music".
+* Spotify features of the seven albums;
+* the pitch and timbre features of Beyoncé's well-known song *Love On Top* (this song is well knwon for having "definitely the greatest key changes in all pop music");
+* Tempo and timbre features of the albums and songs;
 
+I personally notice a number of differences between her albums, for example that her newer albums contain less acoustic songs and that the overall vibe is less positive. Therefore, I'm going to research the acousticness and valence of her albums. I'm expecting them to have shifted downwards after the release of her album *Beyoncé*, because this album is known for having a different style compared to Beyoncé's earlier albums. It's been said a lot that her later albums contained a different, lower end hip hop bass, so I'm curious if this can somehow be seen in this research. In addition, I'm interested in the danceability, energy, and speechiness of her albums. However, I think these features are very high for all her albums, and that no major differences will be seen.  
 
 **Spotify Features** {.storyboard} 
 =============================================================
@@ -277,7 +279,7 @@ bind_rows(
 As I already explained in the introduction, I'm interested in the key changes of the song *Love On Top*, because this song is very well-known for it. Therefore, I will take a look at the chroma and timbre features.In the two self-similarity matrices (SSMs) you can see **chroma** as well as **timbre** features of the song *Love On Top*. Left, you see the chroma features, which show the **harmonic and melodic characteristics**. On the right, the timbre features are shown, which show the changes in **timbre and instrumentation**. 
 
 ```{=html}
-<object data="https://open.spotify.com/embed/track/1z6WtY7X4HQJvzxC4UgkSf" width="280" height="140">
+<object data="https://open.spotify.com/embed/track/1z6WtY7X4HQJvzxC4UgkSf" width="280" height="80" style="display:block;margin:auto;">
     <embed src="https://open.spotify.com/embed/track/1z6WtY7X4HQJvzxC4UgkSf" width="280" height="140"></embed>
 </object>
 ```
@@ -438,6 +440,12 @@ As we've seen in the graph of the preceding page, the album *Beyoncé* seems to 
 * I've chosen to compare *Hip Hop Star* from *Dangerously In Love* with *Heaven* from *Beyoncé* (*see next storyboard*), since *Hip Hop Star* has extremely high valence and energy and a low acousticness and *Heaven* an extremely low valence and energy and a high acousticness (they have the highest and lowest valence in this corpus, which can be seen in the **features scatterplot** from a few storyboards back). 
 * As can be seen, the tempo of *Hip Hop Star* is **constant** around 82 bpm. This song has a very stable drumbeat throughout the song with no diversions. 
 
+```{=html}
+<object data="https://open.spotify.com/embed/track/5cl6rJmigUbx6cNrA3nV8z" width="280" height="80">
+    <embed src="https://open.spotify.com/embed/track/5cl6rJmigUbx6cNrA3nV8z" width="280" height="140"></embed>
+</object>
+```
+
 ### the **'inconsistent' tempo** of *Heaven*.
 
 ```{r, cache = TRUE}
@@ -456,6 +464,12 @@ Heaven1
 
 ***
 *Heaven* has a more **'noisy'tempo**. I think this has to do with the acousticness. Since *Heaven* is almost 100% acoustic and doesn't have such a stable beat as *Hip Hop Star*, it could be harder to determine the exact tempo.
+
+```{=html}
+<object data="https://open.spotify.com/embed/track/0fYwfZcgijhIOyXn0RVPwq" width="280" height="80">
+    <embed src="https://open.spotify.com/embed/track/0fYwfZcgijhIOyXn0RVPwq" width="280" height="140"></embed>
+</object>
+```
 
 
 **Timbre** {.storyboard}
@@ -741,15 +755,15 @@ Bmusic_knn %>% get_pr()
 
 ### **Final conclusions** from the analysis of Beyoncé's albums about general features, the song *Love On Top*, tempo, and timbre features. 
 
-In this corpus, I've analysed four different things, namely: general features of the albums, pitch and timbre features of the song *Love On Top*, tempo, and timbre features. It was very interesting to see the possibilities of Spotify API together with RStudio. So I've not only learned a lot about Beyoncé's music during this course, but also about programming and visualization. 
+In this corpus, I've analysed four different things, namely: general features of the albums, pitch and timbre features of the song *Love On Top*, tempo features of Beyoncé's albums and songs, and timbre features of Beyoncé's albums. It was very interesting to see the possibilities of Spotify API together with RStudio. So I've not only learned a lot about Beyoncé's music during this course, but also about programming and visualization. 
 
 The main things I've learned about Beyoncé's music is that:
 
-* Valence and acousticness have decreased over time;
+* Valence and acousticness have decreased over time, and energy has been constant;
 * Speechiness is very low and has decreased over time;
 * Beyoncé doesn't stick to a few keys, but she varies a lot between her albums and songs;
 * And not only between songs, but also within songs: *Love On Top* modulates no less than 4 times, which makes this song very unique;
-* The album *Beyoncé* shows a lot of similarity in tempo;
+* The songs in the album *Beyoncé* show a lot of similarity in tempo, compared to the variety in tempo in other albums;
 * Timbre feature c02 stands out in Beyoncé's music and has decreased in value over time, which means lower frequencies like bass have become more prominent and that this can define Beyoncé's music to a high degree (specifically the 808 bass). 
 
 It's impressing how much I've learned about Beyoncé's music only in a few weeks time by Spotify API, and therefore I'm very excited and curious what the future will bring, because I'm sure I'll use this again for interesting and new musical researches. 
