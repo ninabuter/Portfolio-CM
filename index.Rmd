@@ -284,6 +284,7 @@ As I already explained in the introduction, I'm interested in the key changes of
 </object>
 ```
 
+
 * I've divided the song into an **intro** (I), 2x **verse** (V) and **chorus** (C), and 4x the **first part of the chorus** in the end (4xC). 
 * In the chroma SSM, the dark diagonal lines from 0 to 180 seconds show **repetition in pitches**. The diagonal lines disappear after approximately 180 seconds. I think this happens because in the last two minutes of the song, the chorus is repeated and goes through **four key changes** (hence, the 4xC) I'll explain this in more detail with a chromagram on the next storyboard.
 * In the timbre SSM, you mostly see a **similar pattern**, since the song mostly consists of the chorus (2x a complete chorus, 4x part of the chorus). The intro and verses have a little diversion in color, but that's not so weird since there is different pattern of vocals and instrumentation. 
