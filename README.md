@@ -1,4 +1,6 @@
-# Portfolio-CM
-When I visit the gym to do a workout, the quality of my workout is dependent on the type of music I listen to. If it were classical music, I would stay in a very analytical and emotional mood, which is not advantageous for my workout. However, when I listen to **workout lists** on **Spotify**, I notice that the songs in these lists have an uplifting and energizing ambiance. Since I'm interested in the effects of these songs on my workouts, I want to research the common features in songs of several workout lists on Spotify and compare the features of different songs.
+# Portfolio Analysis: Beyoncé's Music
 
-I hypothesize that songs will show similarity in the following features: **danceability**, **energy**, **key**, **liveness**, **loudness**, **mode**, **speechiness**, **tempo**, **time signature**, and **valence**. Spotify has a few popular workout lists, which I will be using, but a distinction can be made between the songs of the workout lists for yoga and meditation and the songs of the workout lists for weight training and HIIT. I'll focus on the latter. A few typical songs for these workout lists are *Goosebumps* by HVME, *Mood*  by 24kGoldn and iann dior, and *The Business* of Tiësto, for example. These songs are energizing and uplifting, which is typical for a workout song.
+Assignment for the course Computational Musicology of the study Musicology at the UvA. In this assignment, I analyzed the musical characteristics of Beyoncé's albums and specific songs with the Spotify Web API. I chose to do this analysis because Beyoncé is one of my favourite artists, and I was curious which musical features are mainly present in her music.
+
+With the Spotify Web API, you can obtain musical features from music on Spotify. Musical features include **danceability**, **energy**, **key**, **liveness**, **loudness**, **mode**, **speechiness**, **tempo**, **time signature**, and **valence**.
+I created the portfolio via R Markdown.
